@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="b2d7bc4f-ecd5-457a-aa81-e3df176649ed" activeEnvironment="Default" name="request" soapui-version="5.10.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:restMockService id="ad4282b3-abb7-4d1b-afd5-3c0313cc369b" port="8080" path="/" host="DESKTOP-9E4P7E2" name="iso"><con:settings/><con:properties/><con:restMockAction name="pacs008" method="POST" resourcePath="/pacs008" id="a8ca4650-a0b0-4639-b247-2b38cd869326"><con:settings/><con:defaultResponse>Response 1</con:defaultResponse><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:dispatchPath>/*&#13;
+// Script dispatcher is used to select a response based on the incoming request.&#13;
+// Here are few examples showing how to match based on path, query param, header and body&#13;
+&#13;
+// Match based on path&#13;
+def requestPath = mockRequest.getPath()&#13;
+log.info "Path: "+ requestPath&#13;
+&#13;
+if( requestPath.contains("json") )&#13;
+{&#13;
+    // return the name of the response you want to dispatch&#13;
+    return "JSON Response"&#13;
+}&#13;
+&#13;
+&#13;
+// Match based on query parameter&#13;
+def queryString = mockRequest.getRequest().getQueryString()&#13;
+log.info "QueryString: " + queryString&#13;
+&#13;
+if( queryString.contains("stockholm") )&#13;
+{&#13;
+    // return the name of the response you want to dispatch&#13;
+    return "Response Stockholm"&#13;
+}&#13;
+else if( queryString.contains("london") )&#13;
+{&#13;
+    // return the name of the response you want to dispatch&#13;
+    return "Response London"&#13;
+}&#13;
+&#13;
+&#13;
+// Match based on header&#13;
+def acceptEncodingHeaderList = mockRequest.getRequestHeaders().get("Accept-Encoding")&#13;
+log.info "AcceptEncoding Header List: " + acceptEncodingHeaderList&#13;
+&#13;
+if( acceptEncodingHeaderList.contains("gzip,deflate") )&#13;
+{&#13;
+    // return the name of the response you want to dispatch&#13;
+    return "GZiped Response"&#13;
+}&#13;
+&#13;
+&#13;
+// Match based on body&#13;
+def requestBody = mockRequest.getRequestContent()&#13;
+log.info "Request body: " + requestBody&#13;
+&#13;
+if( requestBody.contains("some data") )&#13;
+{&#13;
+    // return the name of the response you want to dispatch&#13;
+    return "Response N"&#13;
+}&#13;
+*/&#13;
+</con:dispatchPath><con:response name="Response 1" id="a8508a62-4b12-4eea-96cb-b055cd64e47d" httpResponseStatus="200" mediaType="application/xml"><con:settings/><con:responseContent><![CDATA[<DataPDU
+	xmlns=\"urn:cma:stp:xsd:stp.1.0\">\n
+	<Body>\n
+		<AppHdr
+			xmlns=\"urn:iso:std:iso:20022:tech:xsd:head.001.001.01\">
+			<Fr>
+				<FIId>
+					<FinInstnId>
+						<ClrSysMmbId>
+							<MmbId>SBPPPKKAIPS</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</FIId>
+			</Fr>\n
+			<To>
+				<FIId>
+					<FinInstnId>
+						<ClrSysMmbId>
+							<MmbId>NAYAPKKA</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</FIId>
+			</To>\n
+			<BizMsgIdr>8709800404</BizMsgIdr>
+			<MsgDefIdr>pacs.002.001.10</MsgDefIdr>
+			<BizSvc>SN</BizSvc>
+			<CreDt>2026-05-21T12:00:01Z</CreDt>\n
+			<Sgntr>
+				<ds:Signature
+					xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#%5C" Id=\"_990f0a5b-093e-4957-b013-619b1c6ef8c1\">
+					<ds:SignedInfo>
+						<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+						<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256\"/>
+						<ds:Reference URI=\"#_4cb792b6-3861-4cf0-8aa2-130fd2da839a-ki\">
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>O5OvX8fTgBMGR91P+0l+Z6GTzbHvZYJ5Xavwnlx95S0=</ds:DigestValue>
+						</ds:Reference>
+						<ds:Reference Type=\"http://uri.etsi.org/01903/v1.3.2#SignedProperties%5C" URI=\"#_359009c2-bb73-4385-9fc8-8f126659f06a-sp\">
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>BnYEE/m2/0kfNsgIyzCryfRWrlyYDLsFZSOgaFbmbSM=</ds:DigestValue>
+						</ds:Reference>
+						<ds:Reference>
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>tmBVJxhFBYefO9mMsKAB1/cN4s9Ab3RMDMiOrXpysI4=</ds:DigestValue>
+						</ds:Reference>
+					</ds:SignedInfo>
+					<ds:SignatureValue>CiLeRGqPuBXi5KgC0HjeuXKc83TUet7LjK6/4vH2eqQHE83Clwf9JxNgpi53SYIeR5281PWkN56dtr1FOhxWGCci3vwTabZWCq02UqAcS4HMsEGa1zFzH5dQbLyggDWt2yr08TIjYCmTXAsmc+is1W5QJ3g3BAbJy9P8rp4snag73a2osj0KjFv8gFfPvfEAKP+7joz/iMr0GI/hs1ZtzlnrhMZujVxAnsAbex/x2CpipoWWvqwF1xMKa7gA4VLPDIL6337hwptLccMLpn4DB29TlldmZtyo3bDjfrYOCypRZWlfpFs/qQo+MwJy0MKWpVQ4NBVkvSBMVfHKM0GScQ==</ds:SignatureValue>
+					<ds:KeyInfo Id=\"_4cb792b6-3861-4cf0-8aa2-130fd2da839a-ki\">
+						<ds:X509Data>
+							<ds:X509IssuerSerial>
+								<ds:X509IssuerName>CN=MPG Issuing CA, O=MPG, C=PK</ds:X509IssuerName>
+								<ds:X509SerialNumber>64672161760137003882572xxxxxxxxxxxx</ds:X509SerialNumber>
+							</ds:X509IssuerSerial>
+						</ds:X509Data>
+					</ds:KeyInfo>
+					<ds:Object>
+						<xades:QualifyingProperties
+							xmlns:xades=\"http://uri.etsi.org/01903/v1.3.2#%5C" Target=\"#_990f0a5b-093e-4957-b013-619b1c6ef8c1\">
+							<xades:SignedProperties Id=\"_359009c2-bb73-4385-9fc8-8f126659f06a-sp\">
+								<xades:SignedSignatureProperties>
+									<xades:SigningTime>2026-05-21T17:00:01+05:00</xades:SigningTime>
+								</xades:SignedSignatureProperties>
+							</xades:SignedProperties>
+						</xades:QualifyingProperties>
+					</ds:Object>
+				</ds:Signature>
+			</Sgntr>
+		</AppHdr>\n
+		<Document
+			xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.002.001.10\">
+			<FIToFIPmtStsRpt>
+				<GrpHdr>
+					<MsgId>M4758459660</MsgId>
+					<CreDtTm>2026-05-21T17:00:01.122+03:00</CreDtTm>
+				</GrpHdr>
+				<OrgnlGrpInfAndSts>
+					<OrgnlMsgId>NAYAPKKA2xxxxxxxxx</OrgnlMsgId>
+					<OrgnlMsgNmId>pacs.008.001.08</OrgnlMsgNmId>
+					<OrgnlCreDtTm>2026-05-21T16:59:59</OrgnlCreDtTm>
+					<OrgnlNbOfTxs>1</OrgnlNbOfTxs>
+					<GrpSts>ACSP</GrpSts>
+				</OrgnlGrpInfAndSts>
+				<TxInfAndSts>
+					<StsId>M4758459660</StsId>
+					<OrgnlInstrId>NAYA260521xxxxxxxxxxxx5</OrgnlInstrId>
+					<OrgnlEndToEndId>40485fa3c03c-4839-b608-b10da953b476</OrgnlEndToEndId>
+					<OrgnlTxId>NAYA26052xxxxxxxxx</OrgnlTxId>
+					<TxSts>ACSP</TxSts>
+					<AcctSvcrRef>22201</AcctSvcrRef>
+					<InstgAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>SBPPPKKAIPS</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</InstgAgt>
+					<InstdAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>NAYAPKKA</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</InstdAgt>
+					<OrgnlTxRef>
+						<IntrBkSttlmAmt Ccy=\"PKR\">120.0</IntrBkSttlmAmt>
+						<IntrBkSttlmDt>2026-05-21</IntrBkSttlmDt>
+						<PmtTpInf>
+							<ClrChanl>RTNS</ClrChanl>
+							<SvcLvl>
+								<Prtry>0100</Prtry>
+							</SvcLvl>
+							<LclInstrm>
+								<Prtry>PMCT</Prtry>
+							</LclInstrm>
+							<CtgyPurp>
+								<Prtry>050</Prtry>
+							</CtgyPurp>
+						</PmtTpInf>
+						<Purp>
+							<Prtry>050</Prtry>
+						</Purp>
+					</OrgnlTxRef>
+				</TxInfAndSts>
+			</FIToFIPmtStsRpt>
+		</Document>
+	</Body>\n
+</DataPDU>]]></con:responseContent></con:response></con:restMockAction></con:restMockService><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>
