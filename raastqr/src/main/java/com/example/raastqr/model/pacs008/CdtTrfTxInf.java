@@ -61,4 +61,41 @@ public class CdtTrfTxInf {
 
     @XmlElement(name = "ChrgBr")
     private String chrgBr;
+
+    @XmlElement(name = "PmtTpInf")
+private PmtTpInf pmtTpInf;
+
+@XmlElement(name = "IntrBkSttlmDt")
+private String intrBkSttlmDt;
+
+@XmlElement(name = "InstdAmt")
+private Amount instdAmt;
+
+@XmlElement(name = "InstgAgt")
+private InstgAgt instgAgt;
+
+@XmlElement(name = "InstdAgt")
+private InstdAgt instdAgt;
+
+@XmlElement(name = "CdtrAgt")
+private CdtrAgt cdtrAgt;
+
+@XmlElement(name = "Cdtr")
+private Cdtr cdtr;
+
+@XmlElement(name = "InstrForNxtAgt")
+private InstrForNxtAgt instrForNxtAgt;
+
+@XmlElement(name = "Purp")
+private Purp purp;
+
+public void setPmtTpInf(PmtTpInf pmtTpInf) { this.pmtTpInf = pmtTpInf; }
+public void setIntrBkSttlmDt(String intrBkSttlmDt) { this.intrBkSttlmDt = intrBkSttlmDt; }
+public void setInstdAmt(Amount instdAmt) { this.instdAmt = instdAmt; }
+public void setInstgAgt(InstgAgt instgAgt) { this.instgAgt = instgAgt; }
+public void setInstdAgt(InstdAgt instdAgt) { this.instdAgt = instdAgt; }
+public void setCdtrAgt(CdtrAgt cdtrAgt) { this.cdtrAgt = cdtrAgt; }
+public void setCdtr(Cdtr cdtr) { this.cdtr = cdtr; }
+public void setInstrForNxtAgt(InstrForNxtAgt instrForNxtAgt) { this.instrForNxtAgt = instrForNxtAgt; }
+public void setPurp(Purp purp) { this.purp = purp; }
 }

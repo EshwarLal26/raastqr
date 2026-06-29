@@ -27,6 +27,12 @@ public class GrpHdr {
     public void setSttlmInf(SttlmInf sttlmInf) {
         this.sttlmInf = sttlmInf;
     }
+    @XmlElement(name = "BtchBookg")
+private Boolean btchBookg;
+
+public void setBtchBookg(Boolean btchBookg) {
+    this.btchBookg = btchBookg;
+}
 
     @XmlElement(name = "NbOfTxs")
     private String nbOfTxs;

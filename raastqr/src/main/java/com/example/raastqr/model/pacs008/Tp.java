@@ -1,19 +1,16 @@
 package com.example.raastqr.model.pacs008;
 
+import com.example.raastqr.model.pacs008.CdOrPrtry;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class FinInstnId {
-     @XmlElement(name = "ClrSysMmbId")
+public class Tp {
+    @XmlElement(name = "CdOrPrtry")
+    private CdOrPrtry cdOrPrtry;
 
-     private ClrSysMmbId clrSysMmbId;
-
-
- 
-
-    public void setClrSysMmbId(ClrSysMmbId clrSysMmbId) {
-        this.clrSysMmbId = clrSysMmbId;
+    public void setCdOrPrtry(CdOrPrtry cdOrPrtry) {
+        this.cdOrPrtry = cdOrPrtry;
     }
 }

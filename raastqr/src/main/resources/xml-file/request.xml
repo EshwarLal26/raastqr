@@ -1,53 +1,213 @@
-<Document >
-    <FIToFICstmrCdtTrf>
-
-        <GrpHdr>
-            <MsgId>INV20260525001</MsgId>
-            <CreDtTm>2026-05-25T11:10:00</CreDtTm>
-            <NbOfTxs>1</NbOfTxs>
-            <SttlmInf>
-                <SttlmMtd>CLRG</SttlmMtd>
-            </SttlmInf>
-        </GrpHdr>
-
-        <CdtTrfTxInf>
-
-            <PmtId>
-                <InstrId>INV-INSTR-001</InstrId>
-                <EndToEndId>INV-E2E-001</EndToEndId>
-                <TxId>INV-TX-001</TxId>
-            </PmtId>
-
-            <IntrBkSttlmAmt Ccy="EUR">12850.75</IntrBkSttlmAmt>
-
-            <Dbtr>
-                <Nm>Nordic Software GmbH</Nm>
-            </Dbtr>
-
-            <DbtrAcct>
-                <Id>
-                    <IBAN>DE75512108001245126199</IBAN>
-                </Id>
-            </DbtrAcct>
-
-            <DbtrAgt>
-                <FinInstnId>
-                    <BICFI>DEUTDEFF</BICFI>
-                </FinInstnId>
-            </DbtrAgt>
-
-            <CdtrAcct>
-                <Id>
-                    <IBAN>FR7630006000011234567890189</IBAN>
-                </Id>
-            </CdtrAcct>
-
-            <RmtInf>
-                <Ustrd>Invoice INV-2026-455 for software licensing</Ustrd>
-            </RmtInf>
-
-            <ChrgBr>SLEV</ChrgBr>
-
-        </CdtTrfTxInf>
-    </FIToFICstmrCdtTrf>
-</Document>
+<DataPDU
+	xmlns=\"urn:cma:stp:xsd:stp.1.0\">
+	<Body>
+		<AppHdr
+			xmlns=\"urn:iso:std:iso:20022:tech:xsd:head.001.001.01\">
+			<Fr>
+				<FIId>
+					<FinInstnId>
+						<ClrSysMmbId>
+							<MmbId>NAYAPKKA</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</FIId>
+			</Fr>
+			<To>
+				<FIId>
+					<FinInstnId>
+						<ClrSysMmbId>
+							<MmbId>WMBLPKKA</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</FIId>
+			</To>
+			<BizMsgIdr>NAYAPKKA5869884010970552</BizMsgIdr>
+			<MsgDefIdr>pacs.008.001.08</MsgDefIdr>
+			<BizSvc>IPS</BizSvc>
+			<CreDt>2026-05-21T16:59:59Z</CreDt>
+			<Sgntr>
+				<ds:Signature
+					xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">
+					<ds:SignedInfo>
+						<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+						<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256\"/>
+						<ds:Reference URI=\"#_a5d12d05-87d9-4fa0-a74b-078cf1f5e41b\">
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>4u70yCa4lVZ/DiOz8hmY/c7qJ87x/46VIg4L/1l5H4U=</ds:DigestValue>
+						</ds:Reference>
+						<ds:Reference Type=\"http://uri.etsi.org/01903/v1.3.2#SignedProperties%5C" URI=\"#_4f16f42d-6a46-4942-bcf4-4056accfe421-signedprops\">
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>vzKPGxOpMWVU3ktYF1r0QOFzZ9fcdqQMkMk2b/RR/i0=</ds:DigestValue>
+						</ds:Reference>
+						<ds:Reference>
+							<ds:Transforms>
+								<ds:Transform Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>
+							</ds:Transforms>
+							<ds:DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\"/>
+							<ds:DigestValue>c3kPP2WSRlTI16F4oAZ9NAaZnto8S8+OlVhsXhu3AcM=</ds:DigestValue>
+						</ds:Reference>
+					</ds:SignedInfo>
+					<ds:SignatureValue>GjoiiLVlrhaHzO/0w8gGCv3dtmhFds6Ne7mA9PICJMJ4skLKfpzsFp8Hi+oqqf1uhm+DIxwZsdQ6&#13;\ny2J9DjHsrT1KoCREx1NTRO9v5bJ3yHfXev92zHRzfX5Q7ZvRxWhDSNnFxG52FzFAMaxwV82bR5j6&#13;\nFgn8fKOx0VmRH0OquN3UlG0D9hNKXU1CMQ1WN4PWVAmOFq1ok0ooWR/o3GJZ+mBWKbAvu+XSqwFG&#13;\nQYX+hqnYnfDCjMHlkqdjLyQWcjiN3lVQjKaLCuN9/sKXGVN/QmdLxv1qcNsPpGRdzxW68VnkC8e4&#13;\nr/wmEKY5Z5MabX8RLCnSoS4kjSCq88WBoTjcFw==</ds:SignatureValue>
+					<ds:KeyInfo Id=\"_a5d12d05-87d9-4fa0-a74b-078cf1f5e41b\">
+						<ds:X509Data>
+							<ds:X509IssuerSerial>
+								<ds:X509IssuerName>CN=MPG Issuing CA, O=MPG, C=PK</ds:X509IssuerName>
+								<ds:X509SerialNumber>646721618606750015036658458772840064149882343</ds:X509SerialNumber>
+							</ds:X509IssuerSerial>
+						</ds:X509Data>
+					</ds:KeyInfo>
+					<ds:Object>
+						<xades:QualifyingProperties
+							xmlns:xades=\"http://uri.etsi.org/01903/v1.3.2#\">
+							<xades:SignedProperties Id=\"_4f16f42d-6a46-4942-bcf4-4056accfe421-signedprops\">
+								<xades:SignedSignatureProperties>
+									<xades:SigningTime>2026-05-21T16:59:59+05:00</xades:SigningTime>
+								</xades:SignedSignatureProperties>
+							</xades:SignedProperties>
+						</xades:QualifyingProperties>
+					</ds:Object>
+				</ds:Signature>
+			</Sgntr>
+		</AppHdr>
+		<Document
+			xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08\">
+			<FIToFICstmrCdtTrf> 
+				<GrpHdr>
+					<MsgId>NAYAPKKA260521165959501556</MsgId>
+					<CreDtTm>2026-05-21T16:59:59</CreDtTm>
+					<BtchBookg>false</BtchBookg>
+					<NbOfTxs>1</NbOfTxs>
+					<SttlmInf>
+						<SttlmMtd>CLRG</SttlmMtd>
+					</SttlmInf>
+				</GrpHdr>
+				<CdtTrfTxInf>
+					<PmtId>
+						<InstrId>NAYA260521165959278535</InstrId>
+						<EndToEndId>40485fa3c03c-4839-b608-b10da953b476</EndToEndId>
+						<TxId>NAYA260521165959278535</TxId>
+					</PmtId>
+					<PmtTpInf>
+						<ClrChanl>RTNS</ClrChanl>
+						<SvcLvl>
+							<Prtry>0100</Prtry>
+						</SvcLvl>
+						<LclInstrm>
+							<Prtry>PMCT</Prtry>
+						</LclInstrm>
+						<CtgyPurp>
+							<Prtry>050</Prtry>
+						</CtgyPurp>
+					</PmtTpInf>
+					<IntrBkSttlmAmt Ccy=\"PKR\">120.0</IntrBkSttlmAmt>
+					<IntrBkSttlmDt>2026-05-21</IntrBkSttlmDt>
+					<InstdAmt Ccy=\"PKR\">120.0</InstdAmt>
+					<ChrgBr>DEBT</ChrgBr>
+					<InstgAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>NAYAPKKA</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</InstgAgt>
+					<InstdAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>WMBLPKKA</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</InstdAgt>
+					<Dbtr>
+						<Nm>ALI RAZA</Nm>
+						<CtctDtls>
+							<MobNb>+92-30xxxxxx4117</MobNb>
+							<EmailAdr>7xali00@gmail.com</EmailAdr>
+							<Othr>
+								<ChanlTp>LATD</ChanlTp>
+							</Othr>
+							<Othr>
+								<ChanlTp>LONG</ChanlTp>
+							</Othr>
+						</CtctDtls>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<IBAN>PK02NAYA123450xxxxx</IBAN>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>NAYAPKKA</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<MmbId>WMBLPKKA</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>CHAADA PAN SHOP</Nm>
+						<PstlAdr>
+							<SubDept>9830xxxxx39</SubDept>
+							<TwnNm>Lahore</TwnNm>
+						</PstlAdr>
+						<Id>
+							<OrgId>
+								<Othr>
+									<Id>5999</Id>
+									<SchmeNm>
+										<Prtry>MCC</Prtry>
+									</SchmeNm>
+								</Othr>
+							</OrgId>
+						</Id>
+						<CtryOfRes>PK</CtryOfRes>
+						<CtctDtls>
+							<Nm> PAN SHOP</Nm>
+							<MobNb>+92-1008068330</MobNb>
+							<Dept> PAN SHOP</Dept>
+						</CtctDtls>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<IBAN>PK57JCMA00101xxxxxxxxxxxx</IBAN>
+						</Id>
+					</CdtrAcct>
+					<InstrForNxtAgt>
+						<InstrInf>P2M Payment</InstrInf>
+					</InstrForNxtAgt>
+					<Purp>
+						<Prtry>Others</Prtry>
+					</Purp>
+					<RmtInf>
+						<Ustrd>MERCHANT PAYMENT UAT</Ustrd>
+						<Strd>
+							<RfrdDocInf>
+								<Tp>
+									<CdOrPrtry>
+										<Prtry>RSQR</Prtry>
+									</CdOrPrtry>
+								</Tp>
+								<RltdDt>2026-05-21</RltdDt>
+							</RfrdDocInf>
+							<RfrdDocAmt>
+								<DuePyblAmt Ccy=\"PKR\">120.0</DuePyblAmt>
+							</RfrdDocAmt>
+							<CdtrRefInf/>
+						</Strd>
+					</RmtInf>
+				</CdtTrfTxInf>
+			</FIToFICstmrCdtTrf>
+		</Document>
+	</Body>
+</DataPDU>

@@ -5,15 +5,11 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class FinInstnId {
-     @XmlElement(name = "ClrSysMmbId")
+public class Purp {
+    @XmlElement(name = "Prtry")
+    private String prtry;
 
-     private ClrSysMmbId clrSysMmbId;
-
-
- 
-
-    public void setClrSysMmbId(ClrSysMmbId clrSysMmbId) {
-        this.clrSysMmbId = clrSysMmbId;
+    public void setPrtry(String prtry) {
+        this.prtry = prtry;
     }
 }

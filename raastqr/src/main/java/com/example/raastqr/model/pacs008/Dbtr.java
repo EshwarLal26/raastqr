@@ -6,11 +6,18 @@ import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Dbtr {
+
     @XmlElement(name = "Nm")
     private String nm;
 
+    @XmlElement(name = "CtctDtls")
+    private CtctDtls ctctDtls;
 
     public void setNm(String nm) {
-    this.nm = nm;
-}
+        this.nm = nm;
+    }
+
+    public void setCtctDtls(CtctDtls ctctDtls) {
+        this.ctctDtls = ctctDtls;
+    }
 }
