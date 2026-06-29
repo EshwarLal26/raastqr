@@ -1,0 +1,19 @@
+package com.example.raastqr.model.pacs008;
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+public class CdtrAcct {
+    public Id getId() {
+        return id;
+    }
+
+    @XmlElement(name = "Id")
+    private Id id;
+
+    public void setId(Id id) {
+    this.id = id;
+}
+}
