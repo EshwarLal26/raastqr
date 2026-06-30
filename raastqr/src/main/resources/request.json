@@ -1,0 +1,60 @@
+{
+  "fromMemberId": "NAYAPKKA",
+  "toMemberId": "WMBLPKKA",
+  "bizMsgIdr": "NAYAPKKA5869884010970552",
+  "msgDefIdr": "pacs.008.001.08",
+  "bizSvc": "IPS",
+  "appHdrCreDt": "2026-05-30T16:59:59Z",
+
+  "msgId": "NAYAPKKA260521165959501556",
+  "grpHdrCreDtTm": "2026-05-21T16:59:59",
+  "btchBookg": false,
+  "nbOfTxs": "1",
+  "sttlmMtd": "CLRG",
+
+  "instrId": "NAYA260521165959278535",
+  "endToEndId": "40485fa3c03c-4839-b608-b10da953b476",
+  "txId": "NAYA260521165959278535",
+  "svcLvl": "0100",
+  "lclInstrm": "PMCT",
+  "ctgyPurp": "050",
+  "clrChanl": "RTNS",
+
+  "intrBkSttlmAmt": 120.0,
+  "intrBkSttlmAmtCcy": "PKR",
+  "intrBkSttlmDt": "2026-05-21",
+
+  "instdAmt": 120.0,
+  "instdAmtCcy": "PKR",
+  "chrgBr": "DEBT",
+
+  "instgAgtMmbId": "NAYAPKKA",
+  "instdAgtMmbId": "WMBLPKKA",
+
+  "debtorName": "ALI RAZA",
+  "debtorMobile": "+92-30xxxxxx4117",
+  "debtorEmail": "7xali00@gmail.com",
+  "debtorChannelTypes": ["LATD", "LONG"],
+  "debtorIban": "PK02NAYA123450xxxxx",
+  "debtorAgentMmbId": "NAYAPKKA",
+
+  "creditorAgentMmbId": "WMBLPKKA",
+  "creditorName": "CHAADA PAN SHOP",
+  "creditorSubDept": "9830xxxxx39",
+  "creditorTownName": "Lahore",
+  "creditorMcc": "5999",
+  "creditorCountryOfRes": "PK",
+  "creditorContactName": "PAN SHOP",
+  "creditorMobile": "+92-1008068330",
+  "creditorDepartment": "PAN SHOP",
+  "creditorIban": "PK57JCMA00101xxxxxxxxxxxx",
+
+  "instrInf": "P2M Payment",
+  "purp": "Others",
+
+  "referredDocType": "RSQR",
+  "referredDocRelatedDate": "2026-05-21",
+  "duePayableAmt": 120.0,
+  "duePayableAmtCcy": "PKR",
+  "ustrd": "MERCHANT PAYMENT UAT"
+}
