@@ -1,7 +1,7 @@
 package com.example.raastqr.service;
 
 import java.io.StringWriter;
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,10 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.raastqr.dto.Pacs008Request;
 import com.example.raastqr.model.pacs008.Amount;
 import com.example.raastqr.model.pacs008.AppHdr;
 import com.example.raastqr.model.pacs008.Body;
@@ -73,246 +72,323 @@ public class Pacs008ClientService {
         this.bankUrl = bankUrl;
     }
 
-    public void sendPacs008() {
-        try {
-            DataPDU dataPDU = new DataPDU();
-            Body body = new Body();
-            AppHdr appHdr = new AppHdr();
-            Document doc = new Document();
-            FIToFICstmrCdtTrf transfer = new FIToFICstmrCdtTrf();
-            GrpHdr grpHdr = new GrpHdr();
-            SttlmInf sttlmInf = new SttlmInf();
-            CdtTrfTxInf tx = new CdtTrfTxInf();
-            PmtId pmtId = new PmtId();
-            PmtTpInf pmtTpInf = new PmtTpInf();
-            SvcLvl svcLvl = new SvcLvl();
-            LclInstrm lclInstrm = new LclInstrm();
-            CtgyPurp ctgyPurp = new CtgyPurp();
-            IntrBkSttlmAmt intrBkSttlmAmt = new IntrBkSttlmAmt();
-            Amount instdAmt = new Amount();
+    public String buildPacs008Xml(Pacs008Request request) throws Exception {
+        DataPDU dataPdu = new DataPDU();
+        Body body = new Body();
+        Document document = new Document();
+        FIToFICstmrCdtTrf transfer = new FIToFICstmrCdtTrf();
 
-            Party fr = new Party();
-            FIId frFiId = new FIId();
-            FinInstnId frFinInstnId = new FinInstnId();
-            ClrSysMmbId frClrSysMmbId = new ClrSysMmbId();
+        body.setAppHdr(buildAppHdr(request));
 
-            Party to = new Party();
-            FIId toFiId = new FIId();
-            FinInstnId toFinInstnId = new FinInstnId();
-            ClrSysMmbId toClrSysMmbId = new ClrSysMmbId();
+        transfer.setGrpHdr(buildGroupHeader(request));
+        transfer.setCdtTrfTxInf(buildCreditTransfer(request));
 
-            InstgAgt instgAgt = new InstgAgt();
-            FinInstnId instgFinInstnId = new FinInstnId();
-            ClrSysMmbId instgClrSysMmbId = new ClrSysMmbId();
+        document.setFiToFiCstmrCdtTrf(transfer);
+        body.setDocument(document);
+        dataPdu.setBody(body);
 
-            InstdAgt instdAgt = new InstdAgt();
-            FinInstnId instdFinInstnId = new FinInstnId();
-            ClrSysMmbId instdClrSysMmbId = new ClrSysMmbId();
+        return marshalXml(dataPdu);
+    }
 
-            Dbtr dbtr = new Dbtr();
-            CtctDtls dbtrCtct = new CtctDtls();
-            Othr othr1 = new Othr();
-            Othr othr2 = new Othr();
+    public String sendPacs008(Pacs008Request request) throws Exception {
+        String requestXml = buildPacs008Xml(request);
+        return postXml(requestXml);
+    }
 
-            DbtrAcct dbtrAcct = new DbtrAcct();
-            Id dbtrId = new Id();
+    private AppHdr buildAppHdr(Pacs008Request request) {
+        AppHdr appHdr = new AppHdr();
+        appHdr.setFr(buildParty(request.getFromMemberId()));
+        appHdr.setTo(buildParty(request.getToMemberId()));
+        appHdr.setBizMsgIdr(request.getBizMsgIdr());
+        appHdr.setMsgDefIdr(request.getMsgDefIdr());
+        appHdr.setBizSvc(request.getBizSvc());
+        appHdr.setCreDt(request.getAppHdrCreDt());
+        return appHdr;
+    }
 
-            DbtrAgt dbtrAgt = new DbtrAgt();
-            FinInstnId dbtrAgtFinInstnId = new FinInstnId();
-            ClrSysMmbId dbtrAgtClrSysMmbId = new ClrSysMmbId();
+    private Party buildParty(String memberId) {
+        Party party = new Party();
+        FIId fiId = new FIId();
+        fiId.setFinInstnId(buildFinInstnId(memberId));
+        party.setFIId(fiId);
+        return party;
+    }
 
-            CdtrAgt cdtrAgt = new CdtrAgt();
-            FinInstnId cdtrAgtFinInstnId = new FinInstnId();
-            ClrSysMmbId cdtrAgtClrSysMmbId = new ClrSysMmbId();
+    private GrpHdr buildGroupHeader(Pacs008Request request) {
+        GrpHdr grpHdr = new GrpHdr();
+        grpHdr.setMsgId(request.getMsgId());
+        grpHdr.setCreDtTm(request.getGrpHdrCreDtTm());
+        grpHdr.setBtchBookg(request.isBtchBookg());
+        grpHdr.setNbOfTxs(request.getNbOfTxs());
+        grpHdr.setSttlmInf(buildSettlementInfo(request));
+        return grpHdr;
+    }
 
-            Cdtr cdtr = new Cdtr();
-            PstlAdr pstlAdr = new PstlAdr();
-            PartyId partyId = new PartyId();
-            OrgId orgId = new OrgId();
-            OthrId othrId = new OthrId();
-            SchemeNm schemeNm = new SchemeNm();
-            CtctDtls cdtrCtct = new CtctDtls();
+    private SttlmInf buildSettlementInfo(Pacs008Request request) {
+        SttlmInf sttlmInf = new SttlmInf();
+        sttlmInf.setSttlmMtd(request.getSttlmMtd());
+        return sttlmInf;
+    }
 
-            CdtrAcct cdtrAcct = new CdtrAcct();
-            Id cdtrId = new Id();
+    private CdtTrfTxInf buildCreditTransfer(Pacs008Request request) {
+        CdtTrfTxInf tx = new CdtTrfTxInf();
 
-            InstrForNxtAgt instrForNxtAgt = new InstrForNxtAgt();
-            Purp purp = new Purp();
+        tx.setPmtId(buildPaymentId(request));
+        tx.setPmtTpInf(buildPaymentTypeInfo(request));
+        tx.setIntrBkSttlmAmt(buildIntrBkSttlmAmt(request));
+        tx.setIntrBkSttlmDt(request.getIntrBkSttlmDt());
+        tx.setInstdAmt(buildInstdAmt(request));
+        tx.setChrgBr(request.getChrgBr());
+        tx.setInstgAgt(buildInstgAgt(request));
+        tx.setInstdAgt(buildInstdAgt(request));
+        tx.setDbtr(buildDebtor(request));
+        tx.setDbtrAcct(buildDbtrAcct(request));
+        tx.setDbtrAgt(buildDbtrAgt(request));
+        tx.setCdtrAgt(buildCdtrAgt(request));
+        tx.setCdtr(buildCreditor(request));
+        tx.setCdtrAcct(buildCdtrAcct(request));
+        tx.setInstrForNxtAgt(buildInstrForNxtAgt(request));
+        tx.setPurp(buildPurpose(request));
+        tx.setRmtInf(buildRemittance(request));
 
-            RmtInf rmtInf = new RmtInf();
-            Strd strd = new Strd();
-            RfrdDocInf rfrdDocInf = new RfrdDocInf();
-            Tp tp = new Tp();
-            CdOrPrtry cdOrPrtry = new CdOrPrtry();
-            RfrdDocAmt rfrdDocAmt = new RfrdDocAmt();
-            Amount duePyblAmt = new Amount();
+        return tx;
+    }
 
-            frClrSysMmbId.setMmbId("NAYAPKKA");
-            frFinInstnId.setClrSysMmbId(frClrSysMmbId);
-            frFiId.setFinInstnId(frFinInstnId);
-            fr.setFIId(frFiId);
+    private PmtId buildPaymentId(Pacs008Request request) {
+        PmtId pmtId = new PmtId();
+        pmtId.setInstrId(request.getInstrId());
+        pmtId.setEndToEndId(request.getEndToEndId());
+        pmtId.setTxId(request.getTxId());
+        return pmtId;
+    }
 
-            toClrSysMmbId.setMmbId("WMBLPKKA");
-            toFinInstnId.setClrSysMmbId(toClrSysMmbId);
-            toFiId.setFinInstnId(toFinInstnId);
-            to.setFIId(toFiId);
+    private PmtTpInf buildPaymentTypeInfo(Pacs008Request request) {
+        PmtTpInf pmtTpInf = new PmtTpInf();
+        pmtTpInf.setClrChanl(request.getClrChanl());
+        pmtTpInf.setSvcLvl(buildSvcLvl(request));
+        pmtTpInf.setLclInstrm(buildLclInstrm(request));
+        pmtTpInf.setCtgyPurp(buildCtgyPurp(request));
+        return pmtTpInf;
+    }
 
-            appHdr.setFr(fr);
-            appHdr.setTo(to);
-            appHdr.setBizMsgIdr("NAYAPKKA5869884010970552");
-            appHdr.setMsgDefIdr("pacs.008.001.08");
-            appHdr.setBizSvc("IPS");
-            appHdr.setCreDt("2026-05-21T16:59:59Z");
+    private SvcLvl buildSvcLvl(Pacs008Request request) {
+        SvcLvl svcLvl = new SvcLvl();
+        svcLvl.setPrtry(request.getSvcLvl());
+        return svcLvl;
+    }
 
-            sttlmInf.setSttlmMtd("CLRG");
+    private LclInstrm buildLclInstrm(Pacs008Request request) {
+        LclInstrm lclInstrm = new LclInstrm();
+        lclInstrm.setPrtry(request.getLclInstrm());
+        return lclInstrm;
+    }
 
-            grpHdr.setMsgId("NAYAPKKA260521165959501556");
-            grpHdr.setCreDtTm("2026-05-21T16:59:59");
-            grpHdr.setBtchBookg(false);
-            grpHdr.setNbOfTxs("1");
-            grpHdr.setSttlmInf(sttlmInf);
+    private CtgyPurp buildCtgyPurp(Pacs008Request request) {
+        CtgyPurp ctgyPurp = new CtgyPurp();
+        ctgyPurp.setPrtry(request.getCtgyPurp());
+        return ctgyPurp;
+    }
 
-            pmtId.setInstrId("NAYA260521165959278535");
-            pmtId.setEndToEndId("40485fa3c03c-4839-b608-b10da953b476");
-            pmtId.setTxId("NAYA260521165959278535");
+    private IntrBkSttlmAmt buildIntrBkSttlmAmt(Pacs008Request request) {
+        IntrBkSttlmAmt amount = new IntrBkSttlmAmt();
+        amount.setValue(request.getIntrBkSttlmAmt());
+        amount.setCcy(request.getIntrBkSttlmAmtCcy());
+        return amount;
+    }
 
-            svcLvl.setPrtry("0100");
-            lclInstrm.setPrtry("PMCT");
-            ctgyPurp.setPrtry("050");
+    private Amount buildInstdAmt(Pacs008Request request) {
+        Amount amount = new Amount();
+        amount.setValue(request.getInstdAmt());
+        amount.setCcy(request.getInstdAmtCcy());
+        return amount;
+    }
 
-            pmtTpInf.setClrChanl("RTNS");
-            pmtTpInf.setSvcLvl(svcLvl);
-            pmtTpInf.setLclInstrm(lclInstrm);
-            pmtTpInf.setCtgyPurp(ctgyPurp);
+    private InstgAgt buildInstgAgt(Pacs008Request request) {
+        InstgAgt instgAgt = new InstgAgt();
+        instgAgt.setFinInstnId(buildFinInstnId(request.getInstgAgtMmbId()));
+        return instgAgt;
+    }
 
-            intrBkSttlmAmt.setValue(new BigDecimal("120.0"));
-            intrBkSttlmAmt.setCcy("PKR");
+    private InstdAgt buildInstdAgt(Pacs008Request request) {
+        InstdAgt instdAgt = new InstdAgt();
+        instdAgt.setFinInstnId(buildFinInstnId(request.getInstdAgtMmbId()));
+        return instdAgt;
+    }
 
-            instdAmt.setValue(new BigDecimal("120.0"));
-            instdAmt.setCcy("PKR");
+    private DbtrAgt buildDbtrAgt(Pacs008Request request) {
+        DbtrAgt dbtrAgt = new DbtrAgt();
+        dbtrAgt.setFinInstnId(buildFinInstnId(request.getDebtorAgentMmbId()));
+        return dbtrAgt;
+    }
 
-            instgClrSysMmbId.setMmbId("NAYAPKKA");
-            instgFinInstnId.setClrSysMmbId(instgClrSysMmbId);
-            instgAgt.setFinInstnId(instgFinInstnId);
+    private CdtrAgt buildCdtrAgt(Pacs008Request request) {
+        CdtrAgt cdtrAgt = new CdtrAgt();
+        cdtrAgt.setFinInstnId(buildFinInstnId(request.getCreditorAgentMmbId()));
+        return cdtrAgt;
+    }
 
-            instdClrSysMmbId.setMmbId("WMBLPKKA");
-            instdFinInstnId.setClrSysMmbId(instdClrSysMmbId);
-            instdAgt.setFinInstnId(instdFinInstnId);
+    private FinInstnId buildFinInstnId(String memberId) {
+        FinInstnId finInstnId = new FinInstnId();
+        ClrSysMmbId clrSysMmbId = new ClrSysMmbId();
+        clrSysMmbId.setMmbId(memberId);
+        finInstnId.setClrSysMmbId(clrSysMmbId);
+        return finInstnId;
+    }
 
-            dbtr.setNm("ALI RAZA");
-            dbtrCtct.setMobNb("+92-30xxxxxx4117");
-            dbtrCtct.setEmailAdr("7xali00@gmail.com");
-            othr1.setChanlTp("LATD");
-            othr2.setChanlTp("LONG");
-            dbtrCtct.setOthr(List.of(othr1, othr2));
-            dbtr.setCtctDtls(dbtrCtct);
+    private Dbtr buildDebtor(Pacs008Request request) {
+        Dbtr dbtr = new Dbtr();
+        CtctDtls ctctDtls = new CtctDtls();
 
-            dbtrId.setIban("PK02NAYA123450xxxxx");
-            dbtrAcct.setId(dbtrId);
+        ctctDtls.setMobNb(request.getDebtorMobile());
+        ctctDtls.setEmailAdr(request.getDebtorEmail());
+        ctctDtls.setOthr(buildDebtorOtherContacts(request.getDebtorChannelTypes()));
 
-            dbtrAgtClrSysMmbId.setMmbId("NAYAPKKA");
-            dbtrAgtFinInstnId.setClrSysMmbId(dbtrAgtClrSysMmbId);
-            dbtrAgt.setFinInstnId(dbtrAgtFinInstnId);
+        dbtr.setNm(request.getDebtorName());
+        dbtr.setCtctDtls(ctctDtls);
 
-            cdtrAgtClrSysMmbId.setMmbId("WMBLPKKA");
-            cdtrAgtFinInstnId.setClrSysMmbId(cdtrAgtClrSysMmbId);
-            cdtrAgt.setFinInstnId(cdtrAgtFinInstnId);
+        return dbtr;
+    }
 
-            cdtr.setNm("CHAADA PAN SHOP");
-            pstlAdr.setSubDept("9830xxxxx39");
-            pstlAdr.setTwnNm("Lahore");
-            cdtr.setPstlAdr(pstlAdr);
+    private DbtrAcct buildDbtrAcct(Pacs008Request request) {
+        DbtrAcct dbtrAcct = new DbtrAcct();
+        Id id = new Id();
+        id.setIban(request.getDebtorIban());
+        dbtrAcct.setId(id);
+        return dbtrAcct;
+    }
 
-            othrId.setId("5999");
-            schemeNm.setPrtry("MCC");
-            othrId.setSchmeNm(schemeNm);
-            orgId.setOthr(othrId);
-            partyId.setOrgId(orgId);
-            cdtr.setId(partyId);
+    private Cdtr buildCreditor(Pacs008Request request) {
+        Cdtr cdtr = new Cdtr();
+        cdtr.setNm(request.getCreditorName());
+        cdtr.setPstlAdr(buildCreditorAddress(request));
+        cdtr.setId(buildCreditorPartyId(request));
+        cdtr.setCtryOfRes(request.getCreditorCountryOfRes());
+        cdtr.setCtctDtls(buildCreditorContact(request));
+        return cdtr;
+    }
 
-            cdtr.setCtryOfRes("PK");
-            cdtrCtct.setNm(" PAN SHOP");
-            cdtrCtct.setMobNb("+92-1008068330");
-            cdtrCtct.setDept(" PAN SHOP");
-            cdtr.setCtctDtls(cdtrCtct);
+    private PstlAdr buildCreditorAddress(Pacs008Request request) {
+        PstlAdr pstlAdr = new PstlAdr();
+        pstlAdr.setSubDept(request.getCreditorSubDept());
+        pstlAdr.setTwnNm(request.getCreditorTownName());
+        return pstlAdr;
+    }
 
-            cdtrId.setIban("PK57JCMA00101xxxxxxxxxxxx");
-            cdtrAcct.setId(cdtrId);
+    private PartyId buildCreditorPartyId(Pacs008Request request) {
+        PartyId partyId = new PartyId();
+        OrgId orgId = new OrgId();
+        OthrId othrId = new OthrId();
+        SchemeNm schemeNm = new SchemeNm();
 
-            instrForNxtAgt.setInstrInf("P2M Payment");
-            purp.setPrtry("Others");
+        othrId.setId(request.getCreditorMcc());
+        schemeNm.setPrtry("MCC");
+        othrId.setSchmeNm(schemeNm);
+        orgId.setOthr(othrId);
+        partyId.setOrgId(orgId);
 
-            cdOrPrtry.setPrtry("RSQR");
-            tp.setCdOrPrtry(cdOrPrtry);
-            rfrdDocInf.setTp(tp);
-            rfrdDocInf.setRltdDt("2026-05-21");
+        return partyId;
+    }
 
-            duePyblAmt.setValue(new BigDecimal("120.0"));
-            duePyblAmt.setCcy("PKR");
-            rfrdDocAmt.setDuePyblAmt(duePyblAmt);
+    private CtctDtls buildCreditorContact(Pacs008Request request) {
+        CtctDtls ctctDtls = new CtctDtls();
+        ctctDtls.setNm(request.getCreditorContactName());
+        ctctDtls.setMobNb(request.getCreditorMobile());
+        ctctDtls.setDept(request.getCreditorDepartment());
+        return ctctDtls;
+    }
 
-            strd.setRfrdDocInf(rfrdDocInf);
-            strd.setRfrdDocAmt(rfrdDocAmt);
+    private CdtrAcct buildCdtrAcct(Pacs008Request request) {
+        CdtrAcct cdtrAcct = new CdtrAcct();
+        Id id = new Id();
+        id.setIban(request.getCreditorIban());
+        cdtrAcct.setId(id);
+        return cdtrAcct;
+    }
 
-            rmtInf.setUstrd("MERCHANT PAYMENT UAT");
-            rmtInf.setStrd(strd);
+    private InstrForNxtAgt buildInstrForNxtAgt(Pacs008Request request) {
+        InstrForNxtAgt instrForNxtAgt = new InstrForNxtAgt();
+        instrForNxtAgt.setInstrInf(request.getInstrInf());
+        return instrForNxtAgt;
+    }
 
-            tx.setPmtId(pmtId);
-            tx.setPmtTpInf(pmtTpInf);
-            tx.setIntrBkSttlmAmt(intrBkSttlmAmt);
-            tx.setIntrBkSttlmDt("2026-05-21");
-            tx.setInstdAmt(instdAmt);
-            tx.setChrgBr("DEBT");
-            tx.setInstgAgt(instgAgt);
-            tx.setInstdAgt(instdAgt);
-            tx.setDbtr(dbtr);
-            tx.setDbtrAcct(dbtrAcct);
-            tx.setDbtrAgt(dbtrAgt);
-            tx.setCdtrAgt(cdtrAgt);
-            tx.setCdtr(cdtr);
-            tx.setCdtrAcct(cdtrAcct);
-            tx.setInstrForNxtAgt(instrForNxtAgt);
-            tx.setPurp(purp);
-            tx.setRmtInf(rmtInf);
+    private Purp buildPurpose(Pacs008Request request) {
+        Purp purp = new Purp();
+        purp.setPrtry(request.getPurp());
+        return purp;
+    }
 
-            transfer.setGrpHdr(grpHdr);
-            transfer.setCdtTrfTxInf(tx);
+    private RmtInf buildRemittance(Pacs008Request request) {
+        RmtInf rmtInf = new RmtInf();
+        rmtInf.setUstrd(request.getUstrd());
+        rmtInf.setStrd(buildStructuredRemittance(request));
+        return rmtInf;
+    }
 
-            doc.setFiToFiCstmrCdtTrf(transfer);
+    private Strd buildStructuredRemittance(Pacs008Request request) {
+        Strd strd = new Strd();
+        strd.setRfrdDocInf(buildReferredDocInfo(request));
+        strd.setRfrdDocAmt(buildReferredDocAmt(request));
+        return strd;
+    }
 
-            body.setAppHdr(appHdr);
-            body.setDocument(doc);
+    private RfrdDocInf buildReferredDocInfo(Pacs008Request request) {
+        RfrdDocInf rfrdDocInf = new RfrdDocInf();
+        Tp tp = new Tp();
+        CdOrPrtry cdOrPrtry = new CdOrPrtry();
 
-            dataPDU.setBody(body);
+        cdOrPrtry.setPrtry(request.getReferredDocType());
+        tp.setCdOrPrtry(cdOrPrtry);
 
-            JAXBContext context = JAXBContext.newInstance(DataPDU.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        rfrdDocInf.setTp(tp);
+        rfrdDocInf.setRltdDt(request.getReferredDocRelatedDate());
 
-            StringWriter writer = new StringWriter();
-            marshaller.marshal(dataPDU, writer);
+        return rfrdDocInf;
+    }
 
-            String requestXml = writer.toString();
+    private RfrdDocAmt buildReferredDocAmt(Pacs008Request request) {
+        RfrdDocAmt rfrdDocAmt = new RfrdDocAmt();
+        Amount duePyblAmt = new Amount();
 
-            System.out.println("=== GENERATED PACS.008 XML ===");
-            System.out.println(requestXml);
+        duePyblAmt.setValue(request.getDuePayableAmt());
+        duePyblAmt.setCcy(request.getDuePayableAmtCcy());
+        rfrdDocAmt.setDuePyblAmt(duePyblAmt);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_XML);
+        return rfrdDocAmt;
+    }
 
-            HttpEntity<String> request = new HttpEntity<>(requestXml, headers);
-            ResponseEntity<String> response = restTemplate.postForEntity(bankUrl, request, String.class);
+    private String marshalXml(DataPDU dataPdu) throws Exception {
+        JAXBContext context = JAXBContext.newInstance(DataPDU.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-            System.out.println("=== BANK RESPONSE (PACS.002) ===");
-            System.out.println(response.getBody());
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(dataPdu, writer);
 
-        } catch (HttpStatusCodeException ex) {
-            System.err.println("HTTP Error: " + ex.getStatusCode());
-            System.err.println(ex.getResponseBodyAsString());
-        } catch (ResourceAccessException ex) {
-            System.err.println("Connection Error: " + ex.getMessage());
-        } catch (Exception ex) {
-            System.err.println("Error: " + ex.getMessage());
+        return writer.toString();
+    }
+
+    private String postXml(String requestXml) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_XML);
+
+        HttpEntity<String> httpRequest = new HttpEntity<>(requestXml, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(bankUrl, httpRequest, String.class);
+
+        return response.getBody();
+    }
+
+    private List<Othr> buildDebtorOtherContacts(List<String> channelTypes) {
+        List<Othr> others = new ArrayList<>();
+        if (channelTypes == null) {
+            return others;
         }
+
+        for (String channelType : channelTypes) {
+            Othr othr = new Othr();
+            othr.setChanlTp(channelType);
+            others.add(othr);
+        }
+
+        return others;
     }
 }
