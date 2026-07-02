@@ -1,0 +1,39 @@
+{
+  "fromMemberId": "SBPPPKKAIPS",
+  "toMemberId": "NAYAPKKA",
+  "bizMsgIdr": "8709800404",
+  "msgDefIdr": "pacs.002.001.10",
+  "bizSvc": "SN",
+  "appHdrCreDt": "2026-05-21T12:00:01Z",
+
+  "grpHdrMsgId": "M4758459660",
+  "grpHdrCreDtTm": "2026-05-21T17:00:01.122+03:00",
+
+  "orgnlMsgId": "NAYAPKKA2xxxxxxxxx",
+  "orgnlMsgNmId": "pacs.008.001.08",
+  "orgnlCreDtTm": "2026-05-21T16:59:59",
+  "orgnlNbOfTxs": "1",
+  "grpSts": "ACSP",
+
+  "stsId": "M4758459660",
+  "orgnlInstrId": "NAYA260521xxxxxxxxxxxx5",
+  "orgnlEndToEndId": "40485fa3c03c-4839-b608-b10da953b476",
+  "orgnlTxId": "NAYA26052xxxxxxxxx",
+  "txSts": "ACSP",
+  "acctSvcrRef": "22201",
+
+  "instgAgtMmbId": "SBPPPKKAIPS",
+  "instdAgtMmbId": "NAYAPKKA",
+
+  "intrBkSttlmAmt": 120.0,
+  "intrBkSttlmAmtCcy": "PKR",
+  "intrBkSttlmDt": "2026-05-21",
+
+  "clrChanl": "RTNS",
+  "svcLvlPrtry": "0100",
+  "lclInstrmPrtry": "PMCT",
+  "ctgyPurpPrtry": "050",
+  "purpPrtry": "050",
+
+  "signatureXml": "<ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\"></ds:Signature>"
+}
