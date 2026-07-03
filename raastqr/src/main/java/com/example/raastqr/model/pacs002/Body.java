@@ -28,4 +28,4 @@ public class Body {
     public void setDocument(Document document) {
         this.document = document;
     }
-}
+} 
