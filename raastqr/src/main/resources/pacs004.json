@@ -1,0 +1,42 @@
+{
+  "fromMemberId": "WMBLPKKA",
+  "toMemberId": "NAYAPKKA",
+  "bizMsgIdr": "WMBLPKKA260521170500000001",
+  "msgDefIdr": "pacs.004.001.09",
+  "bizSvc": "IPS",
+  "appHdrCreDt": "2026-05-21T17:05:00Z",
+
+  "grpHdrMsgId": "WMBL260521170500000001",
+  "grpHdrCreDtTm": "2026-05-21T17:05:00",
+  "nbOfTxs": "1",
+  "sttlmMtd": "CLRG",
+
+  "rtrId": "RTRN260521170500000001",
+
+  "orgnlMsgId": "NAYAPKKA260521165959501556",
+  "orgnlMsgNmId": "pacs.008.001.08",
+  "orgnlInstrId": "NAYA260521165959278535",
+  "orgnlEndToEndId": "40485fa3c03c-4839-b608-b10da953b476",
+  "orgnlTxId": "NAYA260521165959278535",
+
+  "orgnlIntrBkSttlmAmt": 120.0,
+  "orgnlIntrBkSttlmAmtCcy": "PKR",
+  "rtrdIntrBkSttlmAmt": 120.0,
+  "rtrdIntrBkSttlmAmtCcy": "PKR",
+  "intrBkSttlmDt": "2026-05-21",
+  "chrgBr": "DEBT",
+
+  "returnReasonOriginatorName": "WMBLPKKA",
+  "returnReasonCode": "AC04",
+  "returnAdditionalInfo": "Beneficiary account closed. Original pacs.008 returned.",
+
+  "instgAgtMmbId": "WMBLPKKA",
+  "instdAgtMmbId": "NAYAPKKA",
+  "dbtrAgtMmbId": "WMBLPKKA",
+  "cdtrAgtMmbId": "NAYAPKKA",
+
+  "dbtrName": "CHAADA PAN SHOP",
+  "dbtrIban": "PK57JCMA00101xxxxxxxxxxxx",
+  "cdtrName": "ALI RAZA",
+  "cdtrIban": "PK02NAYA123450xxxxx"
+}
