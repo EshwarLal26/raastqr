@@ -56,9 +56,10 @@ import com.example.raastqr.model.pacs008.Strd;
 import com.example.raastqr.model.pacs008.SttlmInf;
 import com.example.raastqr.model.pacs008.SvcLvl;
 import com.example.raastqr.model.pacs008.Tp;
-
+import com.example.raastqr.utils.RaastUtils;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
+
 
 @Service
 public class Pacs008ClientService {
@@ -72,23 +73,99 @@ public class Pacs008ClientService {
         this.bankUrl = bankUrl;
     }
 
+    // public String buildPacs008Xml(Pacs008Request request) throws Exception {
+    //     DataPDU dataPdu = new DataPDU();
+    //     Body body = new Body();
+    //     Document document = new Document();
+    //     FIToFICstmrCdtTrf transfer = new FIToFICstmrCdtTrf();
+
+    //     body.setAppHdr(buildAppHdr(request));
+
+    //     transfer.setGrpHdr(buildGroupHeader(request));
+    //     transfer.setCdtTrfTxInf(buildCreditTransfer(request));
+
+    //     document.setFiToFiCstmrCdtTrf(transfer);
+    //     body.setDocument(document);
+    //     dataPdu.setBody(body);
+
+    //     return marshalXml(dataPdu);
+    // }
     public String buildPacs008Xml(Pacs008Request request) throws Exception {
-        DataPDU dataPdu = new DataPDU();
-        Body body = new Body();
-        Document document = new Document();
-        FIToFICstmrCdtTrf transfer = new FIToFICstmrCdtTrf();
+    validateAndNormalize(request);
 
-        body.setAppHdr(buildAppHdr(request));
+    DataPDU dataPdu = new DataPDU();
+    Body body = new Body();
+    Document document = new Document();
+    FIToFICstmrCdtTrf transfer = new FIToFICstmrCdtTrf();
 
-        transfer.setGrpHdr(buildGroupHeader(request));
-        transfer.setCdtTrfTxInf(buildCreditTransfer(request));
+    body.setAppHdr(buildAppHdr(request));
 
-        document.setFiToFiCstmrCdtTrf(transfer);
-        body.setDocument(document);
-        dataPdu.setBody(body);
+    transfer.setGrpHdr(buildGroupHeader(request));
+    transfer.setCdtTrfTxInf(buildCreditTransfer(request));
 
-        return marshalXml(dataPdu);
-    }
+    document.setFiToFiCstmrCdtTrf(transfer);
+    body.setDocument(document);
+    dataPdu.setBody(body);
+
+    return marshalXml(dataPdu);
+}
+
+private void validateAndNormalize(Pacs008Request request) {
+    request.setFromMemberId(RaastUtils.formatMemberId("fromMemberId", request.getFromMemberId()));
+    request.setToMemberId(RaastUtils.formatMemberId("toMemberId", request.getToMemberId()));
+    request.setInstgAgtMmbId(RaastUtils.formatMemberId("instgAgtMmbId", request.getInstgAgtMmbId()));
+    request.setInstdAgtMmbId(RaastUtils.formatMemberId("instdAgtMmbId", request.getInstdAgtMmbId()));
+    request.setDebtorAgentMmbId(RaastUtils.formatMemberId("debtorAgentMmbId", request.getDebtorAgentMmbId()));
+    request.setCreditorAgentMmbId(RaastUtils.formatMemberId("creditorAgentMmbId", request.getCreditorAgentMmbId()));
+
+    request.setAppHdrCreDt(RaastUtils.formatIsoOffsetDateTime("appHdrCreDt", request.getAppHdrCreDt()));
+    request.setGrpHdrCreDtTm(RaastUtils.formatIsoDateTime("grpHdrCreDtTm", request.getGrpHdrCreDtTm()));
+    request.setIntrBkSttlmDt(RaastUtils.formatIsoDate("intrBkSttlmDt", request.getIntrBkSttlmDt()));
+    request.setReferredDocRelatedDate(RaastUtils.formatIsoDate("referredDocRelatedDate", request.getReferredDocRelatedDate()));
+
+    request.setIntrBkSttlmAmt(RaastUtils.requireAmount("intrBkSttlmAmt", request.getIntrBkSttlmAmt()));
+    request.setInstdAmt(RaastUtils.requireAmount("instdAmt", request.getInstdAmt()));
+    request.setDuePayableAmt(RaastUtils.requireAmount("duePayableAmt", request.getDuePayableAmt()));
+
+    request.setIntrBkSttlmAmtCcy(RaastUtils.formatCurrency("intrBkSttlmAmtCcy", request.getIntrBkSttlmAmtCcy()));
+    request.setInstdAmtCcy(RaastUtils.formatCurrency("instdAmtCcy", request.getInstdAmtCcy()));
+    request.setDuePayableAmtCcy(RaastUtils.formatCurrency("duePayableAmtCcy", request.getDuePayableAmtCcy()));
+
+    request.setDebtorMobile(RaastUtils.requireValidMobile("debtorMobile", request.getDebtorMobile()));
+    request.setCreditorMobile(RaastUtils.requireValidMobile("creditorMobile", request.getCreditorMobile()));
+
+    request.setDebtorIban(RaastUtils.formatIban("debtorIban", request.getDebtorIban()));
+    request.setCreditorIban(RaastUtils.formatIban("creditorIban", request.getCreditorIban()));
+
+    request.setBizMsgIdr(RaastUtils.requireText("bizMsgIdr", request.getBizMsgIdr()));
+    request.setMsgDefIdr(RaastUtils.requireText("msgDefIdr", request.getMsgDefIdr()));
+    request.setBizSvc(RaastUtils.requireText("bizSvc", request.getBizSvc()));
+    request.setMsgId(RaastUtils.requireText("msgId", request.getMsgId()));
+    request.setNbOfTxs(RaastUtils.requireText("nbOfTxs", request.getNbOfTxs()));
+    request.setSttlmMtd(RaastUtils.requireText("sttlmMtd", request.getSttlmMtd()));
+    request.setInstrId(RaastUtils.requireText("instrId", request.getInstrId()));
+    request.setEndToEndId(RaastUtils.requireText("endToEndId", request.getEndToEndId()));
+    request.setTxId(RaastUtils.requireText("txId", request.getTxId()));
+    request.setSvcLvl(RaastUtils.requireText("svcLvl", request.getSvcLvl()));
+    request.setLclInstrm(RaastUtils.requireText("lclInstrm", request.getLclInstrm()));
+    request.setCtgyPurp(RaastUtils.requireText("ctgyPurp", request.getCtgyPurp()));
+    request.setClrChanl(RaastUtils.requireText("clrChanl", request.getClrChanl()));
+    request.setChrgBr(RaastUtils.requireText("chrgBr", request.getChrgBr()));
+    request.setDebtorName(RaastUtils.requireText("debtorName", request.getDebtorName()));
+    request.setCreditorName(RaastUtils.requireText("creditorName", request.getCreditorName()));
+    request.setCreditorMcc(RaastUtils.requireText("creditorMcc", request.getCreditorMcc()));
+    request.setInstrInf(RaastUtils.requireText("instrInf", request.getInstrInf()));
+    request.setPurp(RaastUtils.requireText("purp", request.getPurp()));
+    request.setReferredDocType(RaastUtils.requireText("referredDocType", request.getReferredDocType()));
+    request.setUstrd(RaastUtils.requireText("ustrd", request.getUstrd()));
+
+    request.setDebtorEmail(RaastUtils.normalizeOptionalText(request.getDebtorEmail()));
+    request.setCreditorSubDept(RaastUtils.normalizeOptionalText(request.getCreditorSubDept()));
+    request.setCreditorTownName(RaastUtils.normalizeOptionalText(request.getCreditorTownName()));
+    request.setCreditorCountryOfRes(RaastUtils.normalizeOptionalText(request.getCreditorCountryOfRes()));
+    request.setCreditorContactName(RaastUtils.normalizeOptionalText(request.getCreditorContactName()));
+    request.setCreditorDepartment(RaastUtils.normalizeOptionalText(request.getCreditorDepartment()));
+}
 
     public String sendPacs008(Pacs008Request request) throws Exception {
         String requestXml = buildPacs008Xml(request);
@@ -391,4 +468,5 @@ public class Pacs008ClientService {
 
         return others;
     }
+
 }
