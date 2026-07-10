@@ -29,6 +29,7 @@ import com.example.raastqr.model.pacs002.PaymentTypeInformation;
 import com.example.raastqr.model.pacs002.ProprietaryValue;
 import com.example.raastqr.model.pacs002.SignatureWrapper;
 import com.example.raastqr.model.pacs002.TransactionInfoAndStatus;
+import com.example.raastqr.service.PaymentTrackingService.Pacs002CallbackData;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
@@ -173,5 +174,38 @@ public class Pacs002Service {
         StringWriter writer = new StringWriter();
         marshaller.marshal(dataPdu, writer);
         return writer.toString();
+    }
+
+    public Pacs002CallbackData parseIncomingPacs002(String xml) {
+        try {
+            javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            org.w3c.dom.Document document = factory
+                    .newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(xml)));
+
+            Pacs002CallbackData data = new Pacs002CallbackData();
+            data.setOriginalMsgId(readFirstTag(document, "OrgnlMsgId"));
+            data.setOriginalInstrId(readFirstTag(document, "OrgnlInstrId"));
+            data.setOriginalEndToEndId(readFirstTag(document, "OrgnlEndToEndId"));
+            data.setOriginalTxId(readFirstTag(document, "OrgnlTxId"));
+            data.setGroupStatus(readFirstTag(document, "GrpSts"));
+            data.setTransactionStatus(readFirstTag(document, "TxSts"));
+            data.setAccountServiceReference(readFirstTag(document, "AcctSvcrRef"));
+            return data;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to parse incoming pacs002 callback", ex);
+        }
+    }
+
+    private String readFirstTag(org.w3c.dom.Document document, String tagName) {
+        org.w3c.dom.NodeList nodes = document.getElementsByTagNameNS("*", tagName);
+        if (nodes.getLength() == 0) {
+            nodes = document.getElementsByTagName(tagName);
+        }
+        if (nodes.getLength() == 0) {
+            return null;
+        }
+        return nodes.item(0).getTextContent();
     }
 }

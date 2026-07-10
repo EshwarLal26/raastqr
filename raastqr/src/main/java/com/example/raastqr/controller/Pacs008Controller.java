@@ -1,10 +1,13 @@
 package com.example.raastqr.controller;
 
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.raastqr.dto.Pacs008Request;
+import com.example.raastqr.dto.PaymentStatusResponse;
 import com.example.raastqr.service.Pacs008ClientService;
 
 @RestController
@@ -22,5 +25,8 @@ public class Pacs008Controller {
         return ResponseEntity.ok(pacs008ClientService.buildPacs008Xml(request));
     }
 
-
+    @PostMapping("/pacs008/send")
+    public ResponseEntity<PaymentStatusResponse> sendPacs008(@RequestBody Pacs008Request request) throws Exception {
+        return ResponseEntity.ok(pacs008ClientService.sendAndTrackPacs008(request));
+    }
 }
