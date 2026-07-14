@@ -2,11 +2,11 @@ package com.example.raastqr.service;
 
 import java.util.List;
 
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
 @Service
-@Primary
+@ConditionalOnMissingBean(SbpStatusClientService.class)
 public class NoopSbpStatusClientService implements SbpStatusClientService {
 
     @Override

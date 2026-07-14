@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.raastqr.dto.Pacs002Dto;
 import com.example.raastqr.service.Pacs002Service;
 import com.example.raastqr.service.PaymentTrackingService;
 
@@ -22,16 +21,6 @@ public class Pacs002Controller {
                              PaymentTrackingService paymentTrackingService) {
         this.pacs002Service = pacs002Service;
         this.paymentTrackingService = paymentTrackingService;
-    }
-
-    @PostMapping(
-            value = "/pacs002",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_XML_VALUE
-    )
-    public ResponseEntity<String> generatePacs002(@RequestBody Pacs002Dto dto) throws Exception {
-        String xml = pacs002Service.buildPacs002Xml(dto);
-        return ResponseEntity.ok(xml);
     }
 
     @PostMapping(
