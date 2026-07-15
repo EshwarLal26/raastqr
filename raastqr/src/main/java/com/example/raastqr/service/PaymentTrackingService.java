@@ -1,13 +1,13 @@
 package com.example.raastqr.service;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
 import com.example.raastqr.dto.Pacs008Request;
 import com.example.raastqr.dto.PaymentStatusResponse;
+import com.example.raastqr.entity.PaymentStatusEntity;
+import com.example.raastqr.repository.PaymentStatusRepository;
 
 @Service
 public class PaymentTrackingService {
@@ -17,7 +17,49 @@ public class PaymentTrackingService {
     public static final String TRANSPORT_HOST_REJECT = "HOST_REJECT";
     public static final String FINAL_PROCESSING = "PROCESSING";
 
-    private final Map<String, PaymentStatusResponse> paymentsByTxId = new ConcurrentHashMap<>();
+   private final PaymentStatusRepository paymentStatusRepository;
+
+public PaymentTrackingService(PaymentStatusRepository paymentStatusRepository) {
+    this.paymentStatusRepository = paymentStatusRepository;
+}
+
+private PaymentStatusEntity toEntity(PaymentStatusResponse status) {
+    PaymentStatusEntity entity = new PaymentStatusEntity();
+    entity.setTxId(status.getTxId());
+    entity.setMsgId(status.getMsgId());
+    entity.setInstrId(status.getInstrId());
+    entity.setEndToEndId(status.getEndToEndId());
+    entity.setRequestId(status.getRequestId());
+    entity.setTraceReference(status.getTraceReference());
+    entity.setTransportStatus(status.getTransportStatus());
+    entity.setFinalStatus(status.getFinalStatus());
+    entity.setGroupStatus(status.getGroupStatus());
+    entity.setTransactionStatus(status.getTransactionStatus());
+    entity.setAccountServiceReference(status.getAccountServiceReference());
+    entity.setLatestMessageType(status.getLatestMessageType());
+    entity.setLatestSource(status.getLatestSource());
+    entity.setLatestRawMessage(status.getLatestRawMessage());
+    return entity;
+}
+
+private PaymentStatusResponse toResponse(PaymentStatusEntity entity) {
+    PaymentStatusResponse status = new PaymentStatusResponse();
+    status.setTxId(entity.getTxId());
+    status.setMsgId(entity.getMsgId());
+    status.setInstrId(entity.getInstrId());
+    status.setEndToEndId(entity.getEndToEndId());
+    status.setRequestId(entity.getRequestId());
+    status.setTraceReference(entity.getTraceReference());
+    status.setTransportStatus(entity.getTransportStatus());
+    status.setFinalStatus(entity.getFinalStatus());
+    status.setGroupStatus(entity.getGroupStatus());
+    status.setTransactionStatus(entity.getTransactionStatus());
+    status.setAccountServiceReference(entity.getAccountServiceReference());
+    status.setLatestMessageType(entity.getLatestMessageType());
+    status.setLatestSource(entity.getLatestSource());
+    status.setLatestRawMessage(entity.getLatestRawMessage());
+    return status;
+}
 
     public PaymentStatusResponse registerOutgoingPayment(Pacs008Request request, String rawMessage) {
         PaymentStatusResponse status = new PaymentStatusResponse();
@@ -32,19 +74,21 @@ public class PaymentTrackingService {
         status.setLatestMessageType("pacs008");
         status.setLatestSource("OUTBOUND_PACS008");
         status.setLatestRawMessage(rawMessage);
-        paymentsByTxId.put(request.getTxId(), status);
-        return status;
+      paymentStatusRepository.save(toEntity(status));
+return status;
     }
 
     public Optional<PaymentStatusResponse> findByTxId(String txId) {
-        return Optional.ofNullable(paymentsByTxId.get(txId));
+       return paymentStatusRepository.findById(txId).map(this::toResponse);
     }
 
     public PaymentStatusResponse markSubmitted(String txId,
                                                String requestId,
                                                String traceReference,
                                                String rawMessage) {
-        PaymentStatusResponse status = paymentsByTxId.computeIfAbsent(txId, key -> new PaymentStatusResponse());
+     PaymentStatusResponse status = paymentStatusRepository.findById(txId)
+        .map(this::toResponse)
+        .orElseGet(PaymentStatusResponse::new);
         status.setTxId(txId);
         status.setRequestId(requestId);
         status.setTraceReference(traceReference);
@@ -53,6 +97,7 @@ public class PaymentTrackingService {
         status.setLatestMessageType("cas-post");
         status.setLatestSource("CAS_POST");
         status.setLatestRawMessage(rawMessage);
+        paymentStatusRepository.save(toEntity(status));
         return status;
     }
 
@@ -60,7 +105,9 @@ public class PaymentTrackingService {
                                                   String requestId,
                                                   String traceReference,
                                                   String rawMessage) {
-        PaymentStatusResponse status = paymentsByTxId.computeIfAbsent(txId, key -> new PaymentStatusResponse());
+      PaymentStatusResponse status = paymentStatusRepository.findById(txId)
+        .map(this::toResponse)
+        .orElseGet(PaymentStatusResponse::new);
         status.setTxId(txId);
         status.setRequestId(requestId);
         status.setTraceReference(traceReference);
@@ -69,16 +116,16 @@ public class PaymentTrackingService {
         status.setLatestMessageType("cas-post");
         status.setLatestSource("CAS_POST");
         status.setLatestRawMessage(rawMessage);
+        paymentStatusRepository.save(toEntity(status));
         return status;
     }
 
     public PaymentStatusResponse updateFromPacs002(Pacs002CallbackData callbackData,
                                                    String rawMessage,
                                                    String source) {
-        PaymentStatusResponse status = paymentsByTxId.computeIfAbsent(
-                callbackData.getOriginalTxId(),
-                key -> new PaymentStatusResponse()
-        );
+      PaymentStatusResponse status = paymentStatusRepository.findById(callbackData.getOriginalTxId())
+        .map(this::toResponse)
+        .orElseGet(PaymentStatusResponse::new);
 
         status.setMsgId(callbackData.getOriginalMsgId());
         status.setInstrId(callbackData.getOriginalInstrId());
@@ -94,6 +141,7 @@ public class PaymentTrackingService {
         status.setLatestMessageType("pacs002");
         status.setLatestSource(source);
         status.setLatestRawMessage(rawMessage);
+        paymentStatusRepository.save(toEntity(status));
         return status;
     }
 

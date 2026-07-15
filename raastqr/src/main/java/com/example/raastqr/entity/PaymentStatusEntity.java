@@ -1,0 +1,72 @@
+package com.example.raastqr.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "payment_status")
+public class PaymentStatusEntity {
+
+    @Id
+    private String txId;
+
+    private String msgId;
+    private String instrId;
+    private String endToEndId;
+    private String requestId;
+    private String traceReference;
+    private String transportStatus;
+    private String finalStatus;
+    private String groupStatus;
+    private String transactionStatus;
+    private String accountServiceReference;
+    private String latestMessageType;
+    private String latestSource;
+
+    @Column(columnDefinition = "TEXT")
+    private String latestRawMessage;
+
+    public String getTxId() { return txId; }
+    public void setTxId(String txId) { this.txId = txId; }
+
+    public String getMsgId() { return msgId; }
+    public void setMsgId(String msgId) { this.msgId = msgId; }
+
+    public String getInstrId() { return instrId; }
+    public void setInstrId(String instrId) { this.instrId = instrId; }
+
+    public String getEndToEndId() { return endToEndId; }
+    public void setEndToEndId(String endToEndId) { this.endToEndId = endToEndId; }
+
+    public String getRequestId() { return requestId; }
+    public void setRequestId(String requestId) { this.requestId = requestId; }
+
+    public String getTraceReference() { return traceReference; }
+    public void setTraceReference(String traceReference) { this.traceReference = traceReference; }
+
+    public String getTransportStatus() { return transportStatus; }
+    public void setTransportStatus(String transportStatus) { this.transportStatus = transportStatus; }
+
+    public String getFinalStatus() { return finalStatus; }
+    public void setFinalStatus(String finalStatus) { this.finalStatus = finalStatus; }
+
+    public String getGroupStatus() { return groupStatus; }
+    public void setGroupStatus(String groupStatus) { this.groupStatus = groupStatus; }
+
+    public String getTransactionStatus() { return transactionStatus; }
+    public void setTransactionStatus(String transactionStatus) { this.transactionStatus = transactionStatus; }
+
+    public String getAccountServiceReference() { return accountServiceReference; }
+    public void setAccountServiceReference(String accountServiceReference) { this.accountServiceReference = accountServiceReference; }
+
+    public String getLatestMessageType() { return latestMessageType; }
+    public void setLatestMessageType(String latestMessageType) { this.latestMessageType = latestMessageType; }
+
+    public String getLatestSource() { return latestSource; }
+    public void setLatestSource(String latestSource) { this.latestSource = latestSource; }
+
+    public String getLatestRawMessage() { return latestRawMessage; }
+    public void setLatestRawMessage(String latestRawMessage) { this.latestRawMessage = latestRawMessage; }
+}

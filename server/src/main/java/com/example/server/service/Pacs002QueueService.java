@@ -5,11 +5,7 @@ import java.io.StringWriter;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -20,6 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.example.server.entity.Pacs002MessageEntity;
 import com.example.server.model.pacs002.Agent;
 import com.example.server.model.pacs002.AppHdr;
 import com.example.server.model.pacs002.Body;
@@ -36,6 +33,7 @@ import com.example.server.model.pacs002.Party;
 import com.example.server.model.pacs002.PaymentTypeInformation;
 import com.example.server.model.pacs002.ProprietaryValue;
 import com.example.server.model.pacs002.TransactionInfoAndStatus;
+import com.example.server.repository.Pacs002MessageRepository;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
@@ -43,29 +41,49 @@ import jakarta.xml.bind.Marshaller;
 @Service
 public class Pacs002QueueService {
 
-    private final Queue<String> pendingMessages = new ConcurrentLinkedQueue<>();
-    private final Map<String, String> messagesByTxId = new ConcurrentHashMap<>();
+  
+private static final String STATUS_PENDING = "PENDING";
+private static final String STATUS_DELIVERED = "DELIVERED";
 
-    public void enqueueAcceptedStatusForPacs008(String pacs008Xml) {
-        Pacs008Reference reference = parsePacs008Reference(pacs008Xml);
-        String pacs002Xml = buildAcceptedPacs002(reference);
-        pendingMessages.add(pacs002Xml);
-        messagesByTxId.put(safe(reference.txId), pacs002Xml);
-    }
+private final Pacs002MessageRepository pacs002MessageRepository;
+
+public Pacs002QueueService(Pacs002MessageRepository pacs002MessageRepository) {
+    this.pacs002MessageRepository = pacs002MessageRepository;
+}
+   public void enqueueAcceptedStatusForPacs008(String pacs008Xml) {
+    Pacs008Reference reference = parsePacs008Reference(pacs008Xml);
+    String pacs002Xml = buildAcceptedPacs002(reference);
+
+    Pacs002MessageEntity message = new Pacs002MessageEntity();
+    message.setTxId(safe(reference.txId));
+    message.setMessageXml(pacs002Xml);
+    message.setStatus(STATUS_PENDING);
+    message.setCreatedAt(OffsetDateTime.now());
+
+    pacs002MessageRepository.save(message);
+}
 
     public List<String> drainPendingMessages() {
-        List<String> messages = new ArrayList<>();
-        String message;
-        while ((message = pendingMessages.poll()) != null) {
-            messages.add(message);
-        }
-        return messages;
+    List<Pacs002MessageEntity> pendingMessages =
+            pacs002MessageRepository.findByStatusOrderByCreatedAtAsc(STATUS_PENDING);
+
+    List<String> messages = new ArrayList<>();
+
+    for (Pacs002MessageEntity message : pendingMessages) {
+        messages.add(message.getMessageXml());
+        message.setStatus(STATUS_DELIVERED);
+        message.setDeliveredAt(OffsetDateTime.now());
     }
+
+    pacs002MessageRepository.saveAll(pendingMessages);
+
+    return messages;
+}
 
     public Optional<String> findGeneratedMessageByTxId(String txId) {
-        return Optional.ofNullable(messagesByTxId.get(txId));
-    }
-
+    return pacs002MessageRepository.findFirstByTxIdOrderByCreatedAtDesc(txId)
+            .map(Pacs002MessageEntity::getMessageXml);
+}
     private Pacs008Reference parsePacs008Reference(String xml) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
