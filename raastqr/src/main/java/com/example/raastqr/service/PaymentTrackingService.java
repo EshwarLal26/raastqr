@@ -149,6 +149,31 @@ return status;
         return updateFromPacs002(callbackData, rawMessage, "PACS002");
     }
 
+
+    public PaymentStatusResponse updateFromPacs004(Pacs004CallbackData callbackData,
+                                                   String rawMessage,
+                                                   String source) {
+        PaymentStatusResponse status = paymentStatusRepository.findById(callbackData.getOriginalTxId())
+        .map(this::toResponse)
+        .orElseGet(PaymentStatusResponse::new);
+
+        status.setMsgId(callbackData.getOriginalMsgId());
+        status.setInstrId(callbackData.getOriginalInstrId());
+        status.setEndToEndId(callbackData.getOriginalEndToEndId());
+        status.setTxId(callbackData.getOriginalTxId());
+        status.setGroupStatus("RETURNED");
+        status.setTransactionStatus("RETURNED");
+        status.setAccountServiceReference(callbackData.getReturnId());
+        if (status.getTransportStatus() == null) {
+            status.setTransportStatus(TRANSPORT_SENT_TO_HOST);
+        }
+        status.setFinalStatus("RETURNED");
+        status.setLatestMessageType("pacs004");
+        status.setLatestSource(source);
+        status.setLatestRawMessage(rawMessage);
+        paymentStatusRepository.save(toEntity(status));
+        return status;
+    }
     private String resolveFinalStatus(Pacs002CallbackData callbackData) {
         if (callbackData.getTransactionStatus() != null && !callbackData.getTransactionStatus().isBlank()) {
             return callbackData.getTransactionStatus();
@@ -188,5 +213,39 @@ return status;
 
         public String getAccountServiceReference() { return accountServiceReference; }
         public void setAccountServiceReference(String accountServiceReference) { this.accountServiceReference = accountServiceReference; }
+    }
+    public static class Pacs004CallbackData {
+        private String originalMsgId;
+        private String originalInstrId;
+        private String originalEndToEndId;
+        private String originalTxId;
+        private String returnId;
+        private String returnReasonCode;
+        private String returnAdditionalInfo;
+        private String returnedAmount;
+
+        public String getOriginalMsgId() { return originalMsgId; }
+        public void setOriginalMsgId(String originalMsgId) { this.originalMsgId = originalMsgId; }
+
+        public String getOriginalInstrId() { return originalInstrId; }
+        public void setOriginalInstrId(String originalInstrId) { this.originalInstrId = originalInstrId; }
+
+        public String getOriginalEndToEndId() { return originalEndToEndId; }
+        public void setOriginalEndToEndId(String originalEndToEndId) { this.originalEndToEndId = originalEndToEndId; }
+
+        public String getOriginalTxId() { return originalTxId; }
+        public void setOriginalTxId(String originalTxId) { this.originalTxId = originalTxId; }
+
+        public String getReturnId() { return returnId; }
+        public void setReturnId(String returnId) { this.returnId = returnId; }
+
+        public String getReturnReasonCode() { return returnReasonCode; }
+        public void setReturnReasonCode(String returnReasonCode) { this.returnReasonCode = returnReasonCode; }
+
+        public String getReturnAdditionalInfo() { return returnAdditionalInfo; }
+        public void setReturnAdditionalInfo(String returnAdditionalInfo) { this.returnAdditionalInfo = returnAdditionalInfo; }
+
+        public String getReturnedAmount() { return returnedAmount; }
+        public void setReturnedAmount(String returnedAmount) { this.returnedAmount = returnedAmount; }
     }
 }

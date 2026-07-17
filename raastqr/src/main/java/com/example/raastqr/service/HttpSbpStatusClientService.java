@@ -1,6 +1,7 @@
 package com.example.raastqr.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,14 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
 
     private final RestTemplate restTemplate;
     private final String statusUrl;
+    private final String pacs004Url;
 
     public HttpSbpStatusClientService(RestTemplate restTemplate,
-                                      @Value("${app.sbp-status-url}") String statusUrl) {
+                                      @Value("${app.sbp-status-url}") String statusUrl,
+                                      @Value("${app.sbp-pacs004-url}") String pacs004Url) {
         this.restTemplate = restTemplate;
         this.statusUrl = statusUrl;
+        this.pacs004Url = pacs004Url;
     }
 
     @Override
@@ -48,6 +52,26 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
         } catch (ResourceAccessException ex) {
             logger.warn("pacs.002 polling endpoint unavailable: {}", statusUrl);
             return List.of();
+        }
+    }
+
+    @Override
+    public Optional<String> fetchPacs004Message() {
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(pacs004Url, String.class);
+            if (response.getStatusCode() == HttpStatus.NO_CONTENT || response.getBody() == null || response.getBody().isBlank()) {
+                return Optional.empty();
+            }
+            return Optional.of(response.getBody());
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode() == HttpStatus.NOT_FOUND || ex.getStatusCode() == HttpStatus.NO_CONTENT) {
+                logger.warn("pacs.004 polling endpoint not found or empty: {}", pacs004Url);
+                return Optional.empty();
+            }
+            throw ex;
+        } catch (ResourceAccessException ex) {
+            logger.warn("pacs.004 polling endpoint unavailable: {}", pacs004Url);
+            return Optional.empty();
         }
     }
 }

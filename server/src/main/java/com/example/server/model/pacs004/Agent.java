@@ -1,4 +1,4 @@
-package com.example.raastqr.model.pacs004;
+package com.example.server.model.pacs004;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

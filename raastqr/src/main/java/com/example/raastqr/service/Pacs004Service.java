@@ -1,8 +1,12 @@
 package com.example.raastqr.service;
 
+import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.springframework.stereotype.Service;
+import org.xml.sax.InputSource;
 
 import com.example.raastqr.dto.Pacs004Dto;
 import com.example.raastqr.model.pacs004.AccountId;
@@ -31,6 +35,30 @@ import jakarta.xml.bind.Marshaller;
 
 @Service
 public class Pacs004Service {
+
+    public PaymentTrackingService.Pacs004CallbackData parseIncomingPacs004(String xml) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            org.w3c.dom.Document document = factory
+                    .newDocumentBuilder()
+                    .parse(new InputSource(new StringReader(xml)));
+
+            PaymentTrackingService.Pacs004CallbackData data = new PaymentTrackingService.Pacs004CallbackData();
+            data.setOriginalMsgId(readFirstTag(document, "OrgnlMsgId"));
+            data.setOriginalInstrId(readFirstTag(document, "OrgnlInstrId"));
+            data.setOriginalEndToEndId(readFirstTag(document, "OrgnlEndToEndId"));
+            data.setOriginalTxId(readFirstTag(document, "OrgnlTxId"));
+            data.setReturnId(readFirstTag(document, "RtrId"));
+            data.setReturnReasonCode(readFirstTag(document, "Cd"));
+            data.setReturnAdditionalInfo(readFirstTag(document, "AddtlInf"));
+            data.setReturnedAmount(readFirstTag(document, "RtrdIntrBkSttlmAmt"));
+            return data;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Unable to parse incoming pacs004 return", ex);
+        }
+    }
 
     public String buildPacs004Xml(Pacs004Dto dto) throws Exception {
         DataPDU dataPdu = new DataPDU();
@@ -169,6 +197,17 @@ public class Pacs004Service {
         return cashAccount;
     }
 
+    private String readFirstTag(org.w3c.dom.Document document, String tagName) {
+        org.w3c.dom.NodeList nodes = document.getElementsByTagNameNS("*", tagName);
+        if (nodes.getLength() == 0) {
+            nodes = document.getElementsByTagName(tagName);
+        }
+        if (nodes.getLength() == 0) {
+            return null;
+        }
+        return nodes.item(0).getTextContent();
+    }
+
     private String marshalXml(DataPDU dataPdu) throws Exception {
         JAXBContext context = JAXBContext.newInstance(DataPDU.class);
         Marshaller marshaller = context.createMarshaller();
@@ -179,3 +218,4 @@ public class Pacs004Service {
         return writer.toString();
     }
 }
+
