@@ -68,14 +68,17 @@ public class Pacs008ClientService {
     private final RestTemplate restTemplate;
     private final String bankUrl;
     private final PaymentTrackingService paymentTrackingService;
+    private final Pacs002Service pacs002Service;
 
-    public Pacs008ClientService(RestTemplate restTemplate,
-                                @Value("${app.bank-url}") String bankUrl,
-                                PaymentTrackingService paymentTrackingService) {
-        this.restTemplate = restTemplate;
-        this.bankUrl = bankUrl;
-        this.paymentTrackingService = paymentTrackingService;
-    }
+   public Pacs008ClientService(RestTemplate restTemplate,
+                            @Value("${app.bank-url}") String bankUrl,
+                            PaymentTrackingService paymentTrackingService,
+                            Pacs002Service pacs002Service) {
+    this.restTemplate = restTemplate;
+    this.bankUrl = bankUrl;
+    this.paymentTrackingService = paymentTrackingService;
+    this.pacs002Service = pacs002Service;
+}
 
     public String buildPacs008Xml(Pacs008Request request) throws Exception {
         validateAndNormalize(request);
@@ -158,32 +161,37 @@ public class Pacs008ClientService {
         return postXml(requestXml).getBody();
     }
 
-    public PaymentStatusResponse sendAndTrackPacs008(Pacs008Request request) throws Exception {
-        String requestXml = buildPacs008Xml(request);
-        PaymentStatusResponse status = paymentTrackingService.registerOutgoingPayment(request, requestXml);
+  public PaymentStatusResponse sendAndTrackPacs008(Pacs008Request request) throws Exception {
+    String requestXml = buildPacs008Xml(request);
+    PaymentStatusResponse status = paymentTrackingService.registerOutgoingPayment(request, requestXml);
 
-        String requestId = UUID.randomUUID().toString();
-        String traceReference = buildTraceReference(request);
-        ResponseEntity<String> response = postXml(requestXml);
+    String requestId = UUID.randomUUID().toString();
+    String traceReference = buildTraceReference(request);
+    ResponseEntity<String> response = postXml(requestXml);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
-            paymentTrackingService.markSubmitted(
-                    request.getTxId(),
-                    requestId,
-                    traceReference,
-                    response.getBody()
-            );
-        } else {
-            paymentTrackingService.markHostRejected(
-                    request.getTxId(),
-                    requestId,
-                    traceReference,
-                    response.getBody()
-            );
+    if (response.getStatusCode().is2xxSuccessful()) {
+        paymentTrackingService.markSubmitted(
+                request.getTxId(),
+                requestId,
+                traceReference,
+                response.getBody()
+        );
+
+        PaymentStatusResponse pacs002Status = waitForPacs002(request.getTxId());
+        if (pacs002Status != null) {
+            return pacs002Status;
         }
-
-        return paymentTrackingService.findByTxId(request.getTxId()).orElse(status);
+    } else {
+        paymentTrackingService.markHostRejected(
+                request.getTxId(),
+                requestId,
+                traceReference,
+                response.getBody()
+        );
     }
+
+    return paymentTrackingService.findByTxId(request.getTxId()).orElse(status);
+}
 
     private AppHdr buildAppHdr(Pacs008Request request) {
         AppHdr appHdr = new AppHdr();
@@ -443,12 +451,47 @@ public class Pacs008ClientService {
         return writer.toString();
     }
 
-    private ResponseEntity<String> postXml(String requestXml) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_XML);
-        HttpEntity<String> httpRequest = new HttpEntity<>(requestXml, headers);
-        return restTemplate.postForEntity(bankUrl, httpRequest, String.class);
+  private ResponseEntity<String> postXml(String requestXml) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_XML);
+
+    HttpEntity<String> httpRequest = new HttpEntity<>(requestXml, headers);
+
+    return restTemplate.postForEntity(
+            bankUrl + "/pacs008",
+            httpRequest,
+            String.class
+    );
+}
+
+private PaymentStatusResponse waitForPacs002(String txId) throws InterruptedException {
+    int attempts = 0;
+
+    while (attempts < 12) {
+        String pacs002Xml = restTemplate.getForObject(
+                bankUrl + "/output/pacs002",
+                String.class
+        );
+
+        if (pacs002Xml != null && !pacs002Xml.isBlank()) {
+            PaymentTrackingService.Pacs002CallbackData callbackData =
+                    pacs002Service.parseIncomingPacs002(pacs002Xml);
+
+            if (txId.equals(callbackData.getOriginalTxId())) {
+                return paymentTrackingService.updateFromPacs002(
+                        callbackData,
+                        pacs002Xml,
+                        "BANK_OUTPUT_PACS002"
+                );
+            }
+        }
+
+        attempts++;
+        Thread.sleep(10000);
     }
+
+    return null;
+}
 
     private String buildTraceReference(Pacs008Request request) {
         return "TRACE-" + request.getTxId();

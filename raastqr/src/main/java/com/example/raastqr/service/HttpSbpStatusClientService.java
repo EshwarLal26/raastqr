@@ -5,8 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,14 +29,19 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
     @Override
     public List<String> fetchPacs002Messages() {
         try {
-            ResponseEntity<List<String>> response = restTemplate.exchange(
-                    statusUrl,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<>() {
-                    }
-            );
-            return response.getBody() == null ? List.of() : response.getBody();
+            ResponseEntity<String> response = restTemplate.getForEntity(statusUrl, String.class);
+            String body = response.getBody();
+            if (body == null || body.isBlank()) {
+                return List.of();
+            }
+
+            String trimmedBody = body.trim();
+            if (!trimmedBody.startsWith("<")) {
+                logger.warn("pacs.002 endpoint returned non-XML response from {}", statusUrl);
+                return List.of();
+            }
+
+            return List.of(trimmedBody);
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
                 logger.warn("pacs.002 polling endpoint not found: {}", statusUrl);
