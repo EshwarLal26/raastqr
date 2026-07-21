@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Pacs008Request {
 
+    private String submissionToken;
+
     private String fromMemberId;
     private String toMemberId;
     private String bizMsgIdr;
@@ -63,6 +65,9 @@ public class Pacs008Request {
     private BigDecimal duePayableAmt;
     private String duePayableAmtCcy;
     private String ustrd;
+
+    public String getSubmissionToken() { return submissionToken; }
+    public void setSubmissionToken(String submissionToken) { this.submissionToken = submissionToken; }
 
     public String getFromMemberId() { return fromMemberId; }
     public void setFromMemberId(String fromMemberId) { this.fromMemberId = fromMemberId; }

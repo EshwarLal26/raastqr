@@ -4,6 +4,7 @@ public class PaymentSubmitResponse {
 
     private boolean success;
     private String message;
+    private String submissionToken;
     private String txId;
     private String msgId;
     private String instrId;
@@ -18,6 +19,9 @@ public class PaymentSubmitResponse {
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+
+    public String getSubmissionToken() { return submissionToken; }
+    public void setSubmissionToken(String submissionToken) { this.submissionToken = submissionToken; }
 
     public String getTxId() { return txId; }
     public void setTxId(String txId) { this.txId = txId; }
@@ -43,3 +47,4 @@ public class PaymentSubmitResponse {
     public String getNextAction() { return nextAction; }
     public void setNextAction(String nextAction) { this.nextAction = nextAction; }
 }
+

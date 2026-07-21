@@ -29,22 +29,22 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
     @Override
     public List<String> fetchPacs002Messages() {
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(statusUrl, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(statusUrl, null, String.class);
             String body = response.getBody();
             if (body == null || body.isBlank()) {
                 return List.of();
             }
 
             String trimmedBody = body.trim();
-            if (!trimmedBody.startsWith("<")) {
-                logger.warn("pacs.002 endpoint returned non-XML response from {}", statusUrl);
+            if (!looksLikePacs002Xml(trimmedBody)) {
+                logger.warn("pacs.002 endpoint returned response that is not a pacs.002 XML message from {}", statusUrl);
                 return List.of();
             }
 
             return List.of(trimmedBody);
         } catch (RestClientResponseException ex) {
             if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-                logger.warn("pacs.002 polling endpoint not found: {}", statusUrl);
+                logger.warn("pacs.002 polling POST endpoint not found: {}", statusUrl);
                 return List.of();
             }
             throw ex;
@@ -52,5 +52,13 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
             logger.warn("pacs.002 polling endpoint unavailable: {}", statusUrl);
             return List.of();
         }
+    }
+    private boolean looksLikePacs002Xml(String body) {
+        String lowerBody = body.toLowerCase();
+        return body.startsWith("<")
+                && !lowerBody.startsWith("<!doctype html")
+                && !lowerBody.startsWith("<html")
+                && !lowerBody.contains("<body")
+                && body.contains("pacs.002");
     }
 }

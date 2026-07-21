@@ -2,11 +2,16 @@ package com.example.raastqr.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class Pacs002PollingJobService {
+
+    private static final Logger logger = LoggerFactory.getLogger(Pacs002PollingJobService.class);
 
     private final SbpStatusClientService sbpStatusClientService;
     private final Pacs002Service pacs002Service;
@@ -27,8 +32,13 @@ public class Pacs002PollingJobService {
     public void pollStatuses() {
         List<String> messages = sbpStatusClientService.fetchPacs002Messages();
         for (String xml : messages) {
-            PaymentTrackingService.Pacs002CallbackData callbackData = pacs002Service.parseIncomingPacs002(xml);
-            paymentTrackingService.updateFromPacs002(callbackData, xml, "SBP_POLL");
+            try {
+                PaymentTrackingService.Pacs002CallbackData callbackData = pacs002Service.parseIncomingPacs002(xml);
+                paymentTrackingService.updateFromPacs002(callbackData, xml, "SBP_POLL");
+            } catch (IllegalStateException ex) {
+                logger.warn("Skipping invalid pacs.002 polling response: {}", ex.getMessage());
+            }
         }
     }
 }
+

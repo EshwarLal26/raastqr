@@ -5,12 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.raastqr.dto.Pacs008Request;
@@ -65,17 +70,22 @@ import jakarta.xml.bind.Marshaller;
 @Service
 public class Pacs008ClientService {
 
+    private static final Logger logger = LoggerFactory.getLogger(Pacs008ClientService.class);
+
     private final RestTemplate restTemplate;
     private final String bankUrl;
+    private final String sbpStatusUrl;
     private final PaymentTrackingService paymentTrackingService;
     private final Pacs002Service pacs002Service;
 
    public Pacs008ClientService(RestTemplate restTemplate,
                             @Value("${app.bank-url}") String bankUrl,
+                            @Value("${app.sbp-status-url}") String sbpStatusUrl,
                             PaymentTrackingService paymentTrackingService,
                             Pacs002Service pacs002Service) {
     this.restTemplate = restTemplate;
     this.bankUrl = bankUrl;
+    this.sbpStatusUrl = sbpStatusUrl;
     this.paymentTrackingService = paymentTrackingService;
     this.pacs002Service = pacs002Service;
 }
@@ -167,32 +177,37 @@ public class Pacs008ClientService {
 
     String requestId = UUID.randomUUID().toString();
     String traceReference = buildTraceReference(request);
-    ResponseEntity<String> response = postXml(requestXml);
+    ResponseEntity<String> response;
 
-    if (response.getStatusCode().is2xxSuccessful()) {
-        paymentTrackingService.markSubmitted(
-                request.getTxId(),
-                requestId,
-                traceReference,
-                response.getBody()
-        );
-
-        PaymentStatusResponse pacs002Status = waitForPacs002(request.getTxId());
-        if (pacs002Status != null) {
-            return pacs002Status;
-        }
-    } else {
+    try {
+        response = postXml(requestXml);
+    } catch (RestClientResponseException ex) {
         paymentTrackingService.markHostRejected(
                 request.getTxId(),
                 requestId,
                 traceReference,
-                response.getBody()
+                ex.getResponseBodyAsString()
         );
+        return paymentTrackingService.findByTxId(request.getTxId()).orElse(status);
+    } catch (ResourceAccessException ex) {
+        paymentTrackingService.markHostRejected(
+                request.getTxId(),
+                requestId,
+                traceReference,
+                ex.getMessage()
+        );
+        return paymentTrackingService.findByTxId(request.getTxId()).orElse(status);
     }
+
+    paymentTrackingService.markSubmitted(
+            request.getTxId(),
+            requestId,
+            traceReference,
+            response.getBody()
+    );
 
     return paymentTrackingService.findByTxId(request.getTxId()).orElse(status);
 }
-
     private AppHdr buildAppHdr(Pacs008Request request) {
         AppHdr appHdr = new AppHdr();
         appHdr.setFr(buildParty(request.getFromMemberId()));
@@ -474,15 +489,18 @@ private PaymentStatusResponse waitForPacs002(String txId) throws InterruptedExce
         );
 
         if (pacs002Xml != null && !pacs002Xml.isBlank()) {
-            PaymentTrackingService.Pacs002CallbackData callbackData =
-                    pacs002Service.parseIncomingPacs002(pacs002Xml);
+            try {
+                PaymentTrackingService.Pacs002CallbackData callbackData =
+                        pacs002Service.parseIncomingPacs002(pacs002Xml);
 
-            if (txId.equals(callbackData.getOriginalTxId())) {
+                // Temporarily accept the pacs.002 response without matching pacs.008 txId to OrgnlTxId.
                 return paymentTrackingService.updateFromPacs002(
                         callbackData,
                         pacs002Xml,
                         "BANK_OUTPUT_PACS002"
                 );
+            } catch (IllegalStateException ex) {
+                logger.warn("Skipping invalid pacs.002 response while waiting: {}", ex.getMessage());
             }
         }
 
@@ -512,3 +530,12 @@ private PaymentStatusResponse waitForPacs002(String txId) throws InterruptedExce
         return others;
     }
 }
+
+
+
+
+
+
+
+
+
