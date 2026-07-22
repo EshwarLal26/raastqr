@@ -35,7 +35,8 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
                 return List.of();
             }
 
-            String trimmedBody = body.trim();
+            String trimmedBody = normalizeXmlResponse(body);
+            logger.info("pacs.002 endpoint raw response from {}: {}", statusUrl, trimmedBody);
             if (!looksLikePacs002Xml(trimmedBody)) {
                 logger.warn("pacs.002 endpoint returned response that is not a pacs.002 XML message from {}", statusUrl);
                 return List.of();
@@ -53,12 +54,27 @@ public class HttpSbpStatusClientService implements SbpStatusClientService {
             return List.of();
         }
     }
+    private String normalizeXmlResponse(String body) {
+        String normalized = body.trim();
+        if (normalized.startsWith("\"") && normalized.endsWith("\"") && normalized.length() > 1) {
+            normalized = normalized.substring(1, normalized.length() - 1);
+        }
+        return normalized
+                .replace("\\\"", "\"")
+                .replace("\\n", "\n")
+                .replace("\\r", "\r")
+                .trim();
+    }
+
     private boolean looksLikePacs002Xml(String body) {
         String lowerBody = body.toLowerCase();
         return body.startsWith("<")
                 && !lowerBody.startsWith("<!doctype html")
                 && !lowerBody.startsWith("<html")
                 && !lowerBody.contains("<body")
-                && body.contains("pacs.002");
+                && (lowerBody.contains("pacs.002") || body.contains("FIToFIPmtStsRpt"));
     }
 }
+
+
+

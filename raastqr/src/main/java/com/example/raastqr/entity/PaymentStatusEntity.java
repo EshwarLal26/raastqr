@@ -22,6 +22,8 @@ public class PaymentStatusEntity {
     private String groupStatus;
     private String transactionStatus;
     private String accountServiceReference;
+    private String rejectionReasonCode;
+    private String rejectionReasonInfo;
     private String latestMessageType;
     private String latestSource;
 
@@ -61,6 +63,12 @@ public class PaymentStatusEntity {
     public String getAccountServiceReference() { return accountServiceReference; }
     public void setAccountServiceReference(String accountServiceReference) { this.accountServiceReference = accountServiceReference; }
 
+    public String getRejectionReasonCode() { return rejectionReasonCode; }
+    public void setRejectionReasonCode(String rejectionReasonCode) { this.rejectionReasonCode = rejectionReasonCode; }
+
+    public String getRejectionReasonInfo() { return rejectionReasonInfo; }
+    public void setRejectionReasonInfo(String rejectionReasonInfo) { this.rejectionReasonInfo = rejectionReasonInfo; }
+
     public String getLatestMessageType() { return latestMessageType; }
     public void setLatestMessageType(String latestMessageType) { this.latestMessageType = latestMessageType; }
 
@@ -70,3 +78,4 @@ public class PaymentStatusEntity {
     public String getLatestRawMessage() { return latestRawMessage; }
     public void setLatestRawMessage(String latestRawMessage) { this.latestRawMessage = latestRawMessage; }
 }
+

@@ -28,6 +28,7 @@ import com.example.raastqr.model.pacs008.CdtTrfTxInf;
 import com.example.raastqr.model.pacs008.Cdtr;
 import com.example.raastqr.model.pacs008.CdtrAcct;
 import com.example.raastqr.model.pacs008.CdtrAgt;
+import com.example.raastqr.model.pacs008.ClrSys;
 import com.example.raastqr.model.pacs008.ClrSysMmbId;
 import com.example.raastqr.model.pacs008.CtctDtls;
 import com.example.raastqr.model.pacs008.CtgyPurp;
@@ -57,6 +58,8 @@ import com.example.raastqr.model.pacs008.PstlAdr;
 import com.example.raastqr.model.pacs008.Purp;
 import com.example.raastqr.model.pacs008.RfrdDocAmt;
 import com.example.raastqr.model.pacs008.RfrdDocInf;
+import com.example.raastqr.model.pacs008.RgltryRptg;
+import com.example.raastqr.model.pacs008.RgltryRptgDtls;
 import com.example.raastqr.model.pacs008.RmtInf;
 import com.example.raastqr.model.pacs008.SchemeNm;
 import com.example.raastqr.model.pacs008.Strd;
@@ -141,7 +144,8 @@ public class Pacs008ClientService {
         request.setBizSvc(RaastUtils.requireText("bizSvc", request.getBizSvc()));
         request.setMsgId(RaastUtils.requireText("msgId", request.getMsgId()));
         request.setNbOfTxs(RaastUtils.requireText("nbOfTxs", request.getNbOfTxs()));
-        request.setSttlmMtd(RaastUtils.requireText("sttlmMtd", request.getSttlmMtd()));
+        request.setSttlmMtd(normalizeSettlementMethod(request.getSttlmMtd()));
+        request.setClrSys(defaultText(request.getClrSys(), "PKRAAST"));
         request.setInstrId(RaastUtils.requireText("instrId", request.getInstrId()));
         request.setEndToEndId(RaastUtils.requireText("endToEndId", request.getEndToEndId()));
         request.setTxId(RaastUtils.requireText("txId", request.getTxId()));
@@ -149,6 +153,7 @@ public class Pacs008ClientService {
         request.setLclInstrm(RaastUtils.requireText("lclInstrm", request.getLclInstrm()));
         request.setCtgyPurp(RaastUtils.requireText("ctgyPurp", request.getCtgyPurp()));
         request.setClrChanl(RaastUtils.requireText("clrChanl", request.getClrChanl()));
+        request.setInstrPrty(normalizeInstructionPriority(request.getInstrPrty()));
         request.setChrgBr(RaastUtils.requireText("chrgBr", request.getChrgBr()));
         request.setDebtorName(RaastUtils.requireText("debtorName", request.getDebtorName()));
         request.setCreditorName(RaastUtils.requireText("creditorName", request.getCreditorName()));
@@ -156,14 +161,54 @@ public class Pacs008ClientService {
         request.setInstrInf(RaastUtils.requireText("instrInf", request.getInstrInf()));
         request.setPurp(RaastUtils.requireText("purp", request.getPurp()));
         request.setReferredDocType(RaastUtils.requireText("referredDocType", request.getReferredDocType()));
-        request.setUstrd(RaastUtils.requireText("ustrd", request.getUstrd()));
+        request.setUstrd(requireMaxLength("ustrd", request.getUstrd(), 140));
+        request.setRegulatoryReportingCode(RaastUtils.requireText("regulatoryReportingCode", defaultText(request.getRegulatoryReportingCode(), request.getPurp())));
+        request.setRegulatoryReportingInfo(RaastUtils.normalizeOptionalText(request.getRegulatoryReportingInfo()));
 
         request.setDebtorEmail(RaastUtils.normalizeOptionalText(request.getDebtorEmail()));
         request.setCreditorSubDept(RaastUtils.normalizeOptionalText(request.getCreditorSubDept()));
         request.setCreditorTownName(RaastUtils.normalizeOptionalText(request.getCreditorTownName()));
         request.setCreditorCountryOfRes(RaastUtils.normalizeOptionalText(request.getCreditorCountryOfRes()));
-        request.setCreditorContactName(RaastUtils.normalizeOptionalText(request.getCreditorContactName()));
-        request.setCreditorDepartment(RaastUtils.normalizeOptionalText(request.getCreditorDepartment()));
+        request.setCreditorContactName(RaastUtils.normalizeOptionalText(request.getCreditorContactName()));        request.setCreditorDepartment(RaastUtils.normalizeOptionalText(request.getCreditorDepartment()));
+
+        request.setInstgAgtBic(defaultBic("instgAgtBic", request.getInstgAgtBic(), request.getInstgAgtMmbId()));
+        request.setInstdAgtBic(defaultBic("instdAgtBic", request.getInstdAgtBic(), request.getInstdAgtMmbId()));
+        request.setDebtorAgentBic(defaultBic("debtorAgentBic", request.getDebtorAgentBic(), request.getDebtorAgentMmbId()));
+        request.setCreditorAgentBic(defaultBic("creditorAgentBic", request.getCreditorAgentBic(), request.getCreditorAgentMmbId()));
+    }
+
+    private String normalizeSettlementMethod(String settlementMethod) {
+        settlementMethod = RaastUtils.requireText("sttlmMtd", settlementMethod).toUpperCase();
+        if (!"CLRG".equals(settlementMethod)) {
+            throw new IllegalArgumentException("sttlmMtd must be CLRG");
+        }
+        return settlementMethod;
+    }
+
+    private String normalizeInstructionPriority(String instructionPriority) {
+        instructionPriority = defaultText(instructionPriority, "NORM").toUpperCase();
+        if (!"NORM".equals(instructionPriority) && !"HIGH".equals(instructionPriority)) {
+            throw new IllegalArgumentException("instrPrty must be NORM or HIGH");
+        }
+        return instructionPriority;
+    }
+
+    private String defaultBic(String fieldName, String bic, String fallbackMemberId) {
+        String value = defaultText(bic, fallbackMemberId);
+        return RaastUtils.formatBic(fieldName, value);
+    }
+
+    private String defaultText(String value, String fallback) {
+        String normalized = RaastUtils.trimToNull(value);
+        return normalized == null ? fallback : normalized;
+    }
+
+    private String requireMaxLength(String fieldName, String value, int maxLength) {
+        value = RaastUtils.requireText(fieldName, value);
+        if (value.length() > maxLength) {
+            throw new IllegalArgumentException(fieldName + " must be " + maxLength + " characters or fewer");
+        }
+        return value;
     }
 
     public String sendPacs008(Pacs008Request request) throws Exception {
@@ -222,7 +267,7 @@ public class Pacs008ClientService {
     private Party buildParty(String memberId) {
         Party party = new Party();
         FIId fiId = new FIId();
-        fiId.setFinInstnId(buildFinInstnId(memberId));
+        fiId.setFinInstnId(buildFinInstnId(memberId, memberId));
         party.setFIId(fiId);
         return party;
     }
@@ -240,6 +285,9 @@ public class Pacs008ClientService {
     private SttlmInf buildSettlementInfo(Pacs008Request request) {
         SttlmInf sttlmInf = new SttlmInf();
         sttlmInf.setSttlmMtd(request.getSttlmMtd());
+        ClrSys clrSys = new ClrSys();
+        clrSys.setCd(request.getClrSys());
+        sttlmInf.setClrSys(clrSys);
         return sttlmInf;
     }
 
@@ -316,30 +364,31 @@ public class Pacs008ClientService {
 
     private InstgAgt buildInstgAgt(Pacs008Request request) {
         InstgAgt instgAgt = new InstgAgt();
-        instgAgt.setFinInstnId(buildFinInstnId(request.getInstgAgtMmbId()));
+        instgAgt.setFinInstnId(buildFinInstnId(request.getInstgAgtMmbId(), request.getInstgAgtBic()));
         return instgAgt;
     }
 
     private InstdAgt buildInstdAgt(Pacs008Request request) {
         InstdAgt instdAgt = new InstdAgt();
-        instdAgt.setFinInstnId(buildFinInstnId(request.getInstdAgtMmbId()));
+        instdAgt.setFinInstnId(buildFinInstnId(request.getInstdAgtMmbId(), request.getInstdAgtBic()));
         return instdAgt;
     }
 
     private DbtrAgt buildDbtrAgt(Pacs008Request request) {
         DbtrAgt dbtrAgt = new DbtrAgt();
-        dbtrAgt.setFinInstnId(buildFinInstnId(request.getDebtorAgentMmbId()));
+        dbtrAgt.setFinInstnId(buildFinInstnId(request.getDebtorAgentMmbId(), request.getDebtorAgentBic()));
         return dbtrAgt;
     }
 
     private CdtrAgt buildCdtrAgt(Pacs008Request request) {
         CdtrAgt cdtrAgt = new CdtrAgt();
-        cdtrAgt.setFinInstnId(buildFinInstnId(request.getCreditorAgentMmbId()));
+        cdtrAgt.setFinInstnId(buildFinInstnId(request.getCreditorAgentMmbId(), request.getCreditorAgentBic()));
         return cdtrAgt;
     }
 
-    private FinInstnId buildFinInstnId(String memberId) {
+    private FinInstnId buildFinInstnId(String memberId, String bic) {
         FinInstnId finInstnId = new FinInstnId();
+        finInstnId.setBicFi(bic);
         ClrSysMmbId clrSysMmbId = new ClrSysMmbId();
         clrSysMmbId.setMmbId(memberId);
         finInstnId.setClrSysMmbId(clrSysMmbId);
@@ -421,6 +470,15 @@ public class Pacs008ClientService {
         Purp purp = new Purp();
         purp.setPrtry(request.getPurp());
         return purp;
+    }
+
+    private RgltryRptg buildRegulatoryReporting(Pacs008Request request) {
+        RgltryRptg regulatoryReporting = new RgltryRptg();
+        RgltryRptgDtls details = new RgltryRptgDtls();
+        details.setCd(request.getRegulatoryReportingCode());
+        details.setInf(request.getRegulatoryReportingInfo());
+        regulatoryReporting.setDtls(details);
+        return regulatoryReporting;
     }
 
     private RmtInf buildRemittance(Pacs008Request request) {
@@ -530,6 +588,10 @@ private PaymentStatusResponse waitForPacs002(String txId) throws InterruptedExce
         return others;
     }
 }
+
+
+
+
 
 
 

@@ -7,6 +7,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PmtTpInf {
 
+    @XmlElement(name = "InstrPrty")
+    private String instrPrty;
+
     @XmlElement(name = "ClrChanl")
     private String clrChanl;
 
@@ -19,6 +22,7 @@ public class PmtTpInf {
     @XmlElement(name = "CtgyPurp")
     private CtgyPurp ctgyPurp;
 
+    public void setInstrPrty(String instrPrty) { this.instrPrty = instrPrty; }
     public void setClrChanl(String clrChanl) { this.clrChanl = clrChanl; }
     public void setSvcLvl(SvcLvl svcLvl) { this.svcLvl = svcLvl; }
     public void setLclInstrm(LclInstrm lclInstrm) { this.lclInstrm = lclInstrm; }

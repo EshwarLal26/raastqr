@@ -6,12 +6,15 @@ import jakarta.xml.bind.annotation.XmlElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FinInstnId {
-     @XmlElement(name = "ClrSysMmbId")
+    @XmlElement(name = "BICFI")
+    private String bicFi;
 
-     private ClrSysMmbId clrSysMmbId;
+    @XmlElement(name = "ClrSysMmbId")
+    private ClrSysMmbId clrSysMmbId;
 
-
- 
+    public void setBicFi(String bicFi) {
+        this.bicFi = bicFi;
+    }
 
     public void setClrSysMmbId(ClrSysMmbId clrSysMmbId) {
         this.clrSysMmbId = clrSysMmbId;

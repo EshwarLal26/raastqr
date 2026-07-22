@@ -21,6 +21,9 @@ public final class RaastUtils {
     private static final Pattern CURRENCY_PATTERN =
             Pattern.compile("[A-Z]{3}");
 
+    private static final Pattern BIC_PATTERN =
+            Pattern.compile("[A-Z0-9]{8}([A-Z0-9]{3})?");
+
     private RaastUtils() {
     }
 
@@ -79,6 +82,19 @@ public final class RaastUtils {
     public static String formatOptionalMemberId(String fieldName, String memberId) {
         String trimmed = trimToNull(memberId);
         return trimmed == null ? null : formatMemberId(fieldName, trimmed);
+    }
+
+    public static String formatBic(String fieldName, String bic) {
+        bic = requireText(fieldName, bic).replaceAll("\\s+", "").toUpperCase();
+        if (!BIC_PATTERN.matcher(bic).matches()) {
+            throw new IllegalArgumentException(fieldName + " must be 8 or 11 uppercase alphanumeric characters");
+        }
+        return bic;
+    }
+
+    public static String formatOptionalBic(String fieldName, String bic) {
+        String trimmed = trimToNull(bic);
+        return trimmed == null ? null : formatBic(fieldName, trimmed);
     }
 
     public static String formatIban(String fieldName, String iban) {
@@ -168,3 +184,5 @@ public final class RaastUtils {
         }
     }
 }
+
+

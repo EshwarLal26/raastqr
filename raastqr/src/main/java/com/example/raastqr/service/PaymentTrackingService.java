@@ -36,6 +36,8 @@ private PaymentStatusEntity toEntity(PaymentStatusResponse status) {
     entity.setGroupStatus(status.getGroupStatus());
     entity.setTransactionStatus(status.getTransactionStatus());
     entity.setAccountServiceReference(status.getAccountServiceReference());
+    entity.setRejectionReasonCode(status.getRejectionReasonCode());
+    entity.setRejectionReasonInfo(status.getRejectionReasonInfo());
     entity.setLatestMessageType(status.getLatestMessageType());
     entity.setLatestSource(status.getLatestSource());
     entity.setLatestRawMessage(status.getLatestRawMessage());
@@ -55,6 +57,8 @@ private PaymentStatusResponse toResponse(PaymentStatusEntity entity) {
     status.setGroupStatus(entity.getGroupStatus());
     status.setTransactionStatus(entity.getTransactionStatus());
     status.setAccountServiceReference(entity.getAccountServiceReference());
+    status.setRejectionReasonCode(entity.getRejectionReasonCode());
+    status.setRejectionReasonInfo(entity.getRejectionReasonInfo());
     status.setLatestMessageType(entity.getLatestMessageType());
     status.setLatestSource(entity.getLatestSource());
     status.setLatestRawMessage(entity.getLatestRawMessage());
@@ -134,6 +138,8 @@ return status;
         status.setGroupStatus(callbackData.getGroupStatus());
         status.setTransactionStatus(callbackData.getTransactionStatus());
         status.setAccountServiceReference(callbackData.getAccountServiceReference());
+        status.setRejectionReasonCode(callbackData.getRejectionReasonCode());
+        status.setRejectionReasonInfo(callbackData.getRejectionReasonInfo());
         if (status.getTransportStatus() == null) {
             status.setTransportStatus(TRANSPORT_SENT_TO_HOST);
         }
@@ -166,6 +172,8 @@ return status;
         private String groupStatus;
         private String transactionStatus;
         private String accountServiceReference;
+        private String rejectionReasonCode;
+        private String rejectionReasonInfo;
 
         public String getOriginalMsgId() { return originalMsgId; }
         public void setOriginalMsgId(String originalMsgId) { this.originalMsgId = originalMsgId; }
@@ -187,6 +195,13 @@ return status;
 
         public String getAccountServiceReference() { return accountServiceReference; }
         public void setAccountServiceReference(String accountServiceReference) { this.accountServiceReference = accountServiceReference; }
+
+        public String getRejectionReasonCode() { return rejectionReasonCode; }
+        public void setRejectionReasonCode(String rejectionReasonCode) { this.rejectionReasonCode = rejectionReasonCode; }
+
+        public String getRejectionReasonInfo() { return rejectionReasonInfo; }
+        public void setRejectionReasonInfo(String rejectionReasonInfo) { this.rejectionReasonInfo = rejectionReasonInfo; }
     }
 }
+
 

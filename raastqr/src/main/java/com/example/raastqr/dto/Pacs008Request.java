@@ -19,6 +19,7 @@ public class Pacs008Request {
     private boolean btchBookg;
     private String nbOfTxs;
     private String sttlmMtd;
+    private String clrSys;
 
     private String instrId;
     private String endToEndId;
@@ -27,6 +28,7 @@ public class Pacs008Request {
     private String lclInstrm;
     private String ctgyPurp;
     private String clrChanl;
+    private String instrPrty;
 
     private BigDecimal intrBkSttlmAmt;
     private String intrBkSttlmAmtCcy;
@@ -37,7 +39,9 @@ public class Pacs008Request {
     private String chrgBr;
 
     private String instgAgtMmbId;
+    private String instgAgtBic;
     private String instdAgtMmbId;
+    private String instdAgtBic;
 
     private String debtorName;
     private String debtorMobile;
@@ -45,8 +49,10 @@ public class Pacs008Request {
     private List<String> debtorChannelTypes;
     private String debtorIban;
     private String debtorAgentMmbId;
+    private String debtorAgentBic;
 
     private String creditorAgentMmbId;
+    private String creditorAgentBic;
     private String creditorName;
     private String creditorSubDept;
     private String creditorTownName;
@@ -59,6 +65,8 @@ public class Pacs008Request {
 
     private String instrInf;
     private String purp;
+    private String regulatoryReportingCode;
+    private String regulatoryReportingInfo;
 
     private String referredDocType;
     private String referredDocRelatedDate;
@@ -102,6 +110,9 @@ public class Pacs008Request {
     public String getSttlmMtd() { return sttlmMtd; }
     public void setSttlmMtd(String sttlmMtd) { this.sttlmMtd = sttlmMtd; }
 
+    public String getClrSys() { return clrSys; }
+    public void setClrSys(String clrSys) { this.clrSys = clrSys; }
+
     public String getInstrId() { return instrId; }
     public void setInstrId(String instrId) { this.instrId = instrId; }
 
@@ -122,6 +133,9 @@ public class Pacs008Request {
 
     public String getClrChanl() { return clrChanl; }
     public void setClrChanl(String clrChanl) { this.clrChanl = clrChanl; }
+
+    public String getInstrPrty() { return instrPrty; }
+    public void setInstrPrty(String instrPrty) { this.instrPrty = instrPrty; }
 
     public BigDecimal getIntrBkSttlmAmt() { return intrBkSttlmAmt; }
     public void setIntrBkSttlmAmt(BigDecimal intrBkSttlmAmt) { this.intrBkSttlmAmt = intrBkSttlmAmt; }
@@ -144,8 +158,14 @@ public class Pacs008Request {
     public String getInstgAgtMmbId() { return instgAgtMmbId; }
     public void setInstgAgtMmbId(String instgAgtMmbId) { this.instgAgtMmbId = instgAgtMmbId; }
 
+    public String getInstgAgtBic() { return instgAgtBic; }
+    public void setInstgAgtBic(String instgAgtBic) { this.instgAgtBic = instgAgtBic; }
+
     public String getInstdAgtMmbId() { return instdAgtMmbId; }
     public void setInstdAgtMmbId(String instdAgtMmbId) { this.instdAgtMmbId = instdAgtMmbId; }
+
+    public String getInstdAgtBic() { return instdAgtBic; }
+    public void setInstdAgtBic(String instdAgtBic) { this.instdAgtBic = instdAgtBic; }
 
     public String getDebtorName() { return debtorName; }
     public void setDebtorName(String debtorName) { this.debtorName = debtorName; }
@@ -165,8 +185,14 @@ public class Pacs008Request {
     public String getDebtorAgentMmbId() { return debtorAgentMmbId; }
     public void setDebtorAgentMmbId(String debtorAgentMmbId) { this.debtorAgentMmbId = debtorAgentMmbId; }
 
+    public String getDebtorAgentBic() { return debtorAgentBic; }
+    public void setDebtorAgentBic(String debtorAgentBic) { this.debtorAgentBic = debtorAgentBic; }
+
     public String getCreditorAgentMmbId() { return creditorAgentMmbId; }
     public void setCreditorAgentMmbId(String creditorAgentMmbId) { this.creditorAgentMmbId = creditorAgentMmbId; }
+
+    public String getCreditorAgentBic() { return creditorAgentBic; }
+    public void setCreditorAgentBic(String creditorAgentBic) { this.creditorAgentBic = creditorAgentBic; }
 
     public String getCreditorName() { return creditorName; }
     public void setCreditorName(String creditorName) { this.creditorName = creditorName; }
@@ -201,6 +227,12 @@ public class Pacs008Request {
     public String getPurp() { return purp; }
     public void setPurp(String purp) { this.purp = purp; }
 
+    public String getRegulatoryReportingCode() { return regulatoryReportingCode; }
+    public void setRegulatoryReportingCode(String regulatoryReportingCode) { this.regulatoryReportingCode = regulatoryReportingCode; }
+
+    public String getRegulatoryReportingInfo() { return regulatoryReportingInfo; }
+    public void setRegulatoryReportingInfo(String regulatoryReportingInfo) { this.regulatoryReportingInfo = regulatoryReportingInfo; }
+
     public String getReferredDocType() { return referredDocType; }
     public void setReferredDocType(String referredDocType) { this.referredDocType = referredDocType; }
 
@@ -216,3 +248,4 @@ public class Pacs008Request {
     public String getUstrd() { return ustrd; }
     public void setUstrd(String ustrd) { this.ustrd = ustrd; }
 }
+
